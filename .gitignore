@@ -1,0 +1,35 @@
+# ── Python ──
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Biometric enrollment data (user-specific, not committed) ──
+data/enrollment/**
+!data/enrollment/.gitkeep
+
+# ── Audio temp files ──
+*.wav
+/tmp/
+
+# ── IDE / OS ──
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ── Environment ──
+.env
+.env.local
+
+# ── Whisper model cache ──
+~/.cache/whisper/
+
+# ── Docker ──
+.dockerignore
