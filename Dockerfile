@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libsndfile1 \
         libportaudio2 \
         portaudio19-dev \
-        libgl1-mesa-glx \
+        libgl1 \
         libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
