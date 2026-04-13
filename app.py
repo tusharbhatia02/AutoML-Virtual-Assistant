@@ -945,3 +945,9 @@ with left:
 
 with right:
     render_chat_panel()
+
+# Auto-refresh UI during active training simulator
+if sm.get_state().get("training_status") == "training":
+    import time
+    time.sleep(1.0)
+    st.rerun()

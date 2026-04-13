@@ -6,13 +6,23 @@ import subprocess
 from pathlib import Path
 
 
+import os
+import sys
+
 def _run_kaggle_command(args: list[str]) -> dict:
+    env = os.environ.copy()
+    env["PYTHONIOENCODING"] = "utf8"
+    kaggle_bin = os.path.join(os.path.dirname(sys.executable), "kaggle")
+    if not os.path.exists(kaggle_bin):
+        kaggle_bin = "kaggle"  # Fallback to PATH if not in a venv
+
     try:
         proc = subprocess.run(
-            ["kaggle", *args],
+            [kaggle_bin, *args],
             capture_output=True,
             check=False,
             shell=False,
+            env=env,
         )
         stdout = proc.stdout.decode("utf-8", errors="replace").strip()
         stderr = proc.stderr.decode("utf-8", errors="replace").strip()

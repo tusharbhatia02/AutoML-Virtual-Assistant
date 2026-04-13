@@ -40,6 +40,80 @@ FALLBACK_COMPETITIONS = [{"ref": "titanic", "deadline": "2030-01-01", "category"
 FALLBACK_LEADERBOARD = {"titanic": [{"teamName": "demo-team", "score": "0.99999"}]}
 
 
+# ── Kaggle Python API (preferred) ────────────────────────────
+
+def _get_kaggle_api():
+    """Get an authenticated KaggleApi instance. Returns None if unavailable."""
+    try:
+        from kaggle.api.kaggle_api_extended import KaggleApi
+        api = KaggleApi()
+        api.authenticate()
+        return api
+    except Exception:
+        return None
+
+
+def _search_datasets_api(query: str, page_size: int = 10) -> dict:
+    """Search datasets using the Kaggle Python API."""
+    api = _get_kaggle_api()
+    if api is None:
+        return {"success": False, "error": "Kaggle API not available"}
+
+    try:
+        results = api.dataset_list(search=query)
+        rows = []
+        for ds in results[:page_size]:
+            rows.append({
+                "ref": str(ds.ref),
+                "title": str(getattr(ds, "title", ds.ref)),
+                "size": str(getattr(ds, "totalBytes", "")),
+                "lastUpdated": str(getattr(ds, "lastUpdated", "")),
+                "downloadCount": str(getattr(ds, "downloadCount", "")),
+                "voteCount": str(getattr(ds, "voteCount", "")),
+                "usabilityRating": str(getattr(ds, "usabilityRating", "")),
+            })
+        return {"success": True, "query": query, "results": rows}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def _download_dataset_api(dataset_ref: str, output_dir: str) -> dict:
+    """Download a dataset using the Kaggle Python API."""
+    api = _get_kaggle_api()
+    if api is None:
+        return {"success": False, "error": "Kaggle API not available"}
+
+    try:
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        api.dataset_download_files(dataset_ref, path=output_dir, unzip=True, quiet=True)
+        return {"success": True, "dataset_ref": dataset_ref, "download_dir": str(Path(output_dir).resolve())}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def _list_dataset_files_api(dataset_ref: str) -> dict:
+    """List files in a dataset using the Kaggle Python API."""
+    api = _get_kaggle_api()
+    if api is None:
+        return {"success": False, "error": "Kaggle API not available"}
+
+    try:
+        files = api.dataset_list_files(dataset_ref)
+        file_list = files.files if hasattr(files, "files") else files
+        rows = []
+        for f in file_list:
+            rows.append({
+                "name": str(getattr(f, "name", f)),
+                "size": str(getattr(f, "totalBytes", getattr(f, "size", ""))),
+                "creationDate": str(getattr(f, "creationDate", "")),
+            })
+        return {"success": True, "dataset_ref": dataset_ref, "files": rows}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+# ── CLI Fallback ─────────────────────────────────────────────
+
 def _run_kaggle_command(args: list[str]) -> dict:
     import os
     env = os.environ.copy()
@@ -67,11 +141,22 @@ def _parse_csv_output(text: str) -> list[dict]:
     return list(csv.DictReader(io.StringIO(text)))
 
 
+# ── Public API (tries Python API → CLI → fallback) ──────────
+
 def search_datasets(query: str, page_size: int = 10) -> dict:
-    result = _run_kaggle_command(["datasets", "list", "-s", query, "-v"])
-    if result["success"]:
-        rows = _parse_csv_output(result["output"])
-        return {"success": True, "query": query, "results": rows}
+    # Try Python API first
+    result = _search_datasets_api(query, page_size)
+    if result["success"] and result.get("results"):
+        return result
+
+    # Try CLI fallback
+    cli_result = _run_kaggle_command(["datasets", "list", "-s", query, "-v"])
+    if cli_result["success"]:
+        rows = _parse_csv_output(cli_result["output"])
+        if rows:
+            return {"success": True, "query": query, "results": rows}
+
+    # Hardcoded fallback
     return {"success": True, "query": query, "results": FALLBACK_SEARCH_RESULTS.get(query.lower().strip(), [])}
 
 
@@ -88,19 +173,33 @@ def resolve_best_dataset_ref(query: str) -> dict:
 
 
 def list_dataset_files(dataset_ref: str) -> dict:
-    result = _run_kaggle_command(["datasets", "files", dataset_ref, "-v"])
+    # Try Python API first
+    result = _list_dataset_files_api(dataset_ref)
     if result["success"]:
-        rows = _parse_csv_output(result["output"])
+        return result
+
+    # Try CLI fallback
+    cli_result = _run_kaggle_command(["datasets", "files", dataset_ref, "-v"])
+    if cli_result["success"]:
+        rows = _parse_csv_output(cli_result["output"])
         return {"success": True, "dataset_ref": dataset_ref, "files": rows}
+
     return {"success": True, "dataset_ref": dataset_ref, "files": FALLBACK_FILES.get(dataset_ref, [])}
 
 
 def download_dataset(dataset_ref: str, output_dir: str) -> dict:
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    result = _run_kaggle_command(["datasets", "download", dataset_ref, "-p", output_dir, "--unzip", "-o", "-q"])
+    # Try Python API first
+    result = _download_dataset_api(dataset_ref, output_dir)
     if result["success"]:
+        return result
+
+    # Try CLI fallback
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    cli_result = _run_kaggle_command(["datasets", "download", dataset_ref, "-p", output_dir, "--unzip", "-o", "-q"])
+    if cli_result["success"]:
         return {"success": True, "dataset_ref": dataset_ref, "download_dir": str(Path(output_dir).resolve())}
-    return {"success": False, "error": result.get("error", f"Failed to download dataset '{dataset_ref}'.")}
+
+    return {"success": False, "error": cli_result.get("error", f"Failed to download dataset '{dataset_ref}'.")}
 
 
 def get_dataset_info(dataset_query: str) -> dict:

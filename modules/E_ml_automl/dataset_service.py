@@ -113,8 +113,13 @@ def _openml_fallback(query: str) -> dict:
         pass
 
     return {"success": False, "error": (
-        f"Could not find a dataset matching '{query}'. "
-        f"Try a well-known name like 'iris', 'mnist', 'titanic', 'wine', 'diabetes', or 'breast_cancer'."
+        f"Could not find a dataset matching '{query}'.\n\n"
+        f"**Built-in datasets** (always available): iris, mnist, titanic, wine, diabetes, breast_cancer.\n\n"
+        f"**To load any Kaggle dataset**, set up the Kaggle CLI:\n"
+        f"1. `pip install kaggle`\n"
+        f"2. Go to kaggle.com → Account → Create New API Token\n"
+        f"3. Place `kaggle.json` in `~/.kaggle/`\n\n"
+        f"Then retry: *'hey mello load {query}'*"
     )}
 
 

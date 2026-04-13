@@ -7,6 +7,10 @@ Import this everywhere instead of hardcoding values.
 
 import hashlib
 import os
+from dotenv import load_dotenv
+
+# Load .env file (picks up KAGGLE_USERNAME, KAGGLE_KEY, etc.)
+load_dotenv()
 
 # ─────────────────────────────────────────────────────────
 # WAKE WORD

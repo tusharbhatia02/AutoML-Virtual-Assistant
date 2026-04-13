@@ -131,11 +131,13 @@ def detect_intent(text: str) -> str:
                             "info on dataset", "info about"]):
         return "get_dataset_info"
 
-    if any(p in t for p in ["search dataset", "find dataset", "search data", "find data"]):
+    if any(p in t for p in ["search dataset", "find dataset", "search data", "find data",
+                            "search for dataset", "search for data", "browse dataset",
+                            "look for dataset", "look for data"]):
         return "search_dataset"
 
     # ── Code workspace commands ──────────────────────────
-    if any(v in t for v in ["load", "retrieve", "fetch"]) and any(k in t for k in ["code", "notebook", "script"]):
+    if any(v in t for v in ["load", "retrieve", "fetch", "download", "get", "pull"]) and any(k in t for k in ["code", "notebook", "script"]):
         return "load_code"
 
     if any(v in t for v in ["run", "execute"]) and any(k in t for k in ["code", "experiment"]):
@@ -179,7 +181,9 @@ def detect_intent(text: str) -> str:
 
     # ── Status / Metrics ─────────────────────────────────
     if any(p in t for p in ["show status", "check status", "current status",
-                            "training status", "what is the status"]):
+                            "training status", "what is the status",
+                            "is training done", "is training complete",
+                            "training progress", "is it done"]):
         return "show_status"
 
     if any(p in t for p in ["show accuracy", "current accuracy",
@@ -197,7 +201,7 @@ def detect_intent(text: str) -> str:
         return "select_model"
 
     # ── Dataset loading (regex fallback) ─────────────────
-    if re.search(r"\b(load|import|open|retrieve|fetch|use)\b", t) and \
+    if re.search(r"\b(load|import|open|retrieve|fetch|use|download|get|grab|pull)\b", t) and \
        not any(k in t for k in ["code", "notebook", "script", "model"]):
         return "load_dataset"
 
