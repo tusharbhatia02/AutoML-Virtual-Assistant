@@ -21,7 +21,6 @@ pandas>=2.0
 scipy>=1.10
 scikit-learn>=1.3
 xgboost>=2.0
-setuptools<82
 
 # ── Core Utilities ──
 torch>=2.0
@@ -32,10 +31,8 @@ requests>=2.31
 tqdm>=4.60
 regex>=2023.0
 
+# ── Text-to-Speech ──
+gTTS>=2.3
+
 # ── Testing ──
 pytest>=8.0
-
-kaggle
-openml>=0.14
-matplotlib>=3.7
-openpyxl

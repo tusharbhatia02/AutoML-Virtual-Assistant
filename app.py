@@ -4,6 +4,7 @@ import inspect
 import os
 import re
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(__file__))
@@ -26,10 +27,20 @@ from modules.A_user_access.user_verification import (
 from modules.A_user_access.wake_word import is_wake_word
 from modules.A_user_access.text_input_handler import TextInputHandler
 from modules.B_voice_processing.audio_capture import AudioCapture
-from modules.B_voice_processing.speech_to_text import SpeechToText
+from modules.B_voice_processing.speech_to_text import (
+    SpeechToText,
+    get_last_transcribe_error,
+)
 from modules.C_nlu.nlu_pipeline import understand
 from modules.D_control.command_router import route_command
 from modules.D_control.state_manager import get_state_manager
+
+# TTS import (graceful — works even if gTTS is not installed)
+try:
+    from modules.B_voice_processing.tts import speak as tts_speak, is_tts_available
+except ImportError:
+    tts_speak = lambda text: None  # noqa: E731
+    is_tts_available = lambda: False  # noqa: E731
 
 st.set_page_config(page_title="AutoML Workspace Assistant", page_icon="🤖", layout="wide")
 
@@ -228,6 +239,73 @@ div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlockBorderWrapp
 }
 .badge-yes { background: rgba(35, 134, 54, 0.2); color: #3fb950; }
 .badge-no { background: rgba(218, 54, 51, 0.15); color: #f85149; }
+
+/* ── Recording pulse animation ── */
+@keyframes pulse-red {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.5); }
+    70%  { box-shadow: 0 0 0 12px rgba(255, 0, 0, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+}
+
+.recording-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(218, 54, 51, 0.12);
+    border: 1px solid rgba(218, 54, 51, 0.3);
+    border-radius: 10px;
+    color: #f85149;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.recording-dot {
+    width: 10px;
+    height: 10px;
+    background: #f85149;
+    border-radius: 50%;
+    animation: pulse-red 1.5s infinite;
+}
+
+/* ── Typing indicator ── */
+@keyframes typing-bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-6px); }
+}
+
+.typing-indicator {
+    display: inline-flex;
+    gap: 4px;
+    padding: 8px 12px;
+}
+
+.typing-indicator span {
+    width: 7px;
+    height: 7px;
+    background: #58a6ff;
+    border-radius: 50%;
+    animation: typing-bounce 1.2s ease-in-out infinite;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+
+/* ── Pipeline stage badges ── */
+.pipeline-stage {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    margin-right: 6px;
+    margin-bottom: 4px;
+}
+.stage-active { background: rgba(56, 139, 253, 0.15); color: #58a6ff; border: 1px solid rgba(56,139,253,0.3); }
+.stage-done   { background: rgba(35, 134, 54, 0.15); color: #3fb950; border: 1px solid rgba(35,134,54,0.3); }
+.stage-pending { background: rgba(110, 118, 129, 0.1); color: #6e7681; border: 1px solid rgba(110,118,129,0.2); }
 </style>
 """, unsafe_allow_html=True)
 
@@ -239,11 +317,17 @@ if "profile_id" not in st.session_state:
 if "verified" not in st.session_state:
     st.session_state.verified = False
 if "chat_open" not in st.session_state:
-    st.session_state.chat_open = True  # Open by default — no need to click
+    st.session_state.chat_open = True
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
         {"role": "assistant", "content": "👋 Welcome to the AutoML Assistant! Sign in or create an account to get started."}
     ]
+if "tts_enabled" not in st.session_state:
+    st.session_state.tts_enabled = True
+if "show_camera" not in st.session_state:
+    st.session_state.show_camera = False
+if "last_tts_path" not in st.session_state:
+    st.session_state.last_tts_path = None
 
 
 def log(msg: str):
@@ -251,6 +335,7 @@ def log(msg: str):
 
 
 def strip_wake_or_bypass(text: str) -> tuple[bool, str]:
+    """Check for wake word and strip it. Returns (wake_detected, cleaned_text)."""
     cleaned = text.strip()
     if is_wake_word(cleaned):
         stripped = re.sub(
@@ -265,10 +350,39 @@ def strip_wake_or_bypass(text: str) -> tuple[bool, str]:
     return False, cleaned
 
 
+def _strip_markdown_for_tts(text: str) -> str:
+    """Remove markdown / emoji for cleaner TTS audio."""
+    clean = re.sub(r"[*_`#]", "", text)
+    clean = re.sub(r"\[.*?\]\(.*?\)", "", clean)           # links
+    clean = re.sub(r":[a-z_]+:", "", clean)                 # :emoji_codes:
+    # Remove common emoji ranges
+    clean = re.sub(
+        r"[\U0001F300-\U0001F9FF\U00002600-\U000027BF\u2700-\u27BF\uFE00-\uFE0F\u200D]",
+        "", clean,
+    )
+    clean = re.sub(r"\s+", " ", clean).strip()
+    return clean
+
+
 def process_command(user_text: str):
+    """
+    Core command processing pipeline.
+    Enforces wake word — rejects commands without it.
+    """
     st.session_state.chat_history.append({"role": "user", "content": user_text})
 
+    # ── Wake word gate ───────────────────────────────────────
     ok, cleaned = strip_wake_or_bypass(user_text)
+    if not ok:
+        reject_msg = (
+            "🔇 I only respond to commands that start with the wake word **'hey mello'**.\n\n"
+            "Try saying: *'hey mello load iris dataset'*"
+        )
+        st.session_state.chat_history.append({"role": "assistant", "content": reject_msg})
+        log(f"⚠️ Wake word missing — rejected: '{user_text[:40]}'")
+        return
+
+    # ── NLU + Routing ────────────────────────────────────────
     nlu = understand(cleaned)
     result = route_command(nlu)
 
@@ -276,11 +390,22 @@ def process_command(user_text: str):
     sm.set_assistant_response(result["message"])
     log(f"Chat command → {nlu['intent']}")
 
-    assistant_text = result["message"]
-    if not ok:
-        assistant_text = f"⚡ {assistant_text}"
+    # Build rich response showing what was understood
+    intent_badge = nlu["intent"].replace("_", " ").title()
+    assistant_text = (
+        f"🧠 **Intent:** `{intent_badge}`\n\n"
+        f"{result['message']}"
+    )
 
     st.session_state.chat_history.append({"role": "assistant", "content": assistant_text})
+
+    # ── TTS ──────────────────────────────────────────────────
+    if st.session_state.tts_enabled:
+        tts_clean = _strip_markdown_for_tts(result["message"])
+        if tts_clean:
+            path = tts_speak(tts_clean)
+            if path:
+                st.session_state.last_tts_path = path
 
 
 def _status_class(status: str) -> str:
@@ -424,12 +549,17 @@ def render_outputs_panel(state: dict):
                     )
 
 
+# ═══════════════════════════════════════════════════════════════
+# AUTHENTICATION PANEL — Camera/Voice gated behind explicit action
+# ═══════════════════════════════════════════════════════════════
+
 def render_auth_panel():
     st.markdown("#### 🔐 Create Account or Sign In")
     st.caption("Enter a username and password to get started.")
 
     auth_tab_signin, auth_tab_signup, auth_tab_bio = st.tabs(["🔑 Sign In", "📝 Sign Up", "🧬 Biometrics"])
 
+    # ── Sign Up ──────────────────────────────────────────────
     with auth_tab_signup:
         new_user = st.text_input("Choose a username", key="chat_signup_user", placeholder="e.g. john_doe")
         new_pw = st.text_input("New password", type="password", key="chat_signup_password")
@@ -451,6 +581,7 @@ def render_auth_panel():
                 else:
                     st.error(result["message"])
 
+    # ── Sign In ──────────────────────────────────────────────
     with auth_tab_signin:
         login_user = st.text_input("Username", key="chat_signin_user", placeholder="e.g. john_doe")
         password = st.text_input("Password", type="password", key="chat_signin_password")
@@ -464,69 +595,149 @@ def render_auth_panel():
                 st.session_state.chat_history.append(
                     {"role": "assistant", "content": f"✅ Welcome back, **{uid}**! You can now use voice or text commands. Try: *'hey mello load iris dataset'*"}
                 )
-                st.rerun()  # Immediately show the chat input
-            else:
-                st.error(result["message"])
-
-    with auth_tab_bio:
-        bio_user = st.text_input("Username for biometrics", key="chat_bio_user",
-                                  value=st.session_state.profile_id or DEFAULT_USER_ID)
-        uid = bio_user.strip() if bio_user.strip() else DEFAULT_USER_ID
-        est = enrollment_status(uid)
-        st.caption(f"Face enrolled: {'✅' if est['face_enrolled'] else '❌'} · Voice enrolled: {'✅' if est['voice_enrolled'] else '❌'}")
-
-        st.markdown("**Face Enrollment / Verification**")
-        face_img = st.camera_input("Capture face", key="chat_face_camera")
-        c1, c2 = st.columns(2)
-        if c1.button("Enroll Face", key="chat_enroll_face") and face_img is not None:
-            arr = np.array(Image.open(face_img).convert("RGB"))
-            result = enroll_face(uid, arr)
-            st.success(result["message"]) if result["success"] else st.error(result["message"])
-        if c2.button("Verify Face", key="chat_verify_face") and face_img is not None:
-            arr = np.array(Image.open(face_img).convert("RGB"))
-            result = verify_face(uid, arr)
-            if result["verified"]:
-                st.session_state.profile_id = uid
-                st.session_state.verified = True
-                sm.set_verified(True)
-                st.session_state.chat_history.append(
-                    {"role": "assistant", "content": f"✅ Face verified. Welcome, **{uid}**!"}
-                )
                 st.rerun()
             else:
                 st.error(result["message"])
 
-        st.markdown("**Voice Enrollment / Verification**")
-        duration = st.slider("Voice duration (seconds)", 3, 8, 4, key="chat_voice_seconds")
-        c3, c4 = st.columns(2)
-        if c3.button("Enroll Voice", key="chat_enroll_voice"):
-            try:
-                audio = AudioCapture().record_fixed(duration=duration)
-                result = enroll_voice(uid, audio)
-                st.success(result["message"]) if result["success"] else st.error(result["message"])
-            except Exception as e:
-                st.error(str(e))
-        if c4.button("Verify Voice", key="chat_verify_voice"):
-            try:
-                audio = AudioCapture().record_fixed(duration=duration)
-                result = verify_voice(uid, audio)
-                if result["verified"]:
-                    st.session_state.profile_id = uid
-                    st.session_state.verified = True
-                    sm.set_verified(True)
-                    st.session_state.chat_history.append(
-                        {"role": "assistant", "content": f"✅ Voice verified. Welcome, **{uid}**!"}
-                    )
-                    st.rerun()
-                else:
-                    st.error(result["message"])
-            except Exception as e:
-                st.error(str(e))
+    # ── Biometrics — gated behind explicit user action ───────
+    with auth_tab_bio:
+        bio_user = st.text_input(
+            "Username for biometrics", key="chat_bio_user",
+            value=st.session_state.profile_id or DEFAULT_USER_ID,
+        )
+        uid = bio_user.strip() if bio_user.strip() else DEFAULT_USER_ID
+        est = enrollment_status(uid)
+        st.caption(
+            f"Face enrolled: {'✅' if est['face_enrolled'] else '❌'} · "
+            f"Voice enrolled: {'✅' if est['voice_enrolled'] else '❌'}"
+        )
 
+        bio_mode = st.radio(
+            "Choose biometric method:",
+            ["📸 Face", "🎤 Voice"],
+            key="bio_mode_radio",
+            horizontal=True,
+        )
+
+        # ── FACE BIOMETRICS ──────────────────────────────────
+        if "Face" in bio_mode:
+            bio_action = st.radio(
+                "Action:", ["Enroll Face", "Verify & Sign In"],
+                key="face_action_radio", horizontal=True,
+            )
+
+            # Camera only opens when the user clicks the button
+            if st.button("📷 Open Camera", key="btn_open_camera", type="primary"):
+                st.session_state.show_camera = True
+
+            if st.session_state.show_camera:
+                face_img = st.camera_input("Capture your face", key="chat_face_camera")
+                if face_img is not None:
+                    if "Enroll" in bio_action:
+                        if st.button("✅ Enroll My Face", key="btn_do_enroll_face", type="primary"):
+                            with st.spinner("🔍 Detecting face and creating template..."):
+                                arr = np.array(Image.open(face_img).convert("RGB"))
+                                result = enroll_face(uid, arr)
+                            if result["success"]:
+                                st.success(result["message"])
+                                st.session_state.show_camera = False
+                                st.balloons()
+                            else:
+                                st.error(result["message"])
+                    else:  # Verify
+                        if st.button("🔓 Verify Face & Sign In", key="btn_do_verify_face", type="primary"):
+                            with st.spinner("🔍 Comparing against stored template..."):
+                                arr = np.array(Image.open(face_img).convert("RGB"))
+                                result = verify_face(uid, arr)
+                            if result["verified"]:
+                                st.session_state.profile_id = uid
+                                st.session_state.verified = True
+                                sm.set_verified(True)
+                                st.session_state.show_camera = False
+                                st.session_state.chat_history.append(
+                                    {"role": "assistant", "content": f"✅ Face verified. Welcome, **{uid}**!"}
+                                )
+                                st.rerun()
+                            else:
+                                st.error(result["message"])
+                else:
+                    st.caption("👆 Take a photo above to proceed.")
+
+        # ── VOICE BIOMETRICS ─────────────────────────────────
+        else:
+            bio_action = st.radio(
+                "Action:", ["Enroll Voice", "Verify & Sign In"],
+                key="voice_action_radio", horizontal=True,
+            )
+            duration = st.slider(
+                "Recording duration (seconds)", 3, 12, 7,
+                key="chat_voice_seconds",
+            )
+            st.info(
+                "🎙️ Speak naturally — say anything. Your voice *characteristics* "
+                "(pitch, timbre) are compared, not the words."
+            )
+
+            btn_label = "🎤 Record & Enroll Voice" if "Enroll" in bio_action else "🎤 Record & Verify Voice"
+            if st.button(btn_label, key="btn_bio_voice_action", type="primary"):
+                # Show recording indicator
+                st.markdown(
+                    f'<div class="recording-indicator">'
+                    f'<div class="recording-dot"></div>'
+                    f'🔴 Recording for {duration}s — please speak now…'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+
+                try:
+                    with st.spinner(f"🔴 Recording for {duration}s..."):
+                        cap = AudioCapture()
+                        audio = cap.record_fixed(duration=duration)
+
+                    peak = float(np.max(np.abs(audio)))
+                    if peak < 0.01:
+                        st.warning("⚠️ Very quiet recording. Check mic and speak louder.")
+
+                    # Save and play back the recording
+                    from modules.A_user_access.voice_biometrics import LAST_RECORDING_PATH, save_wav
+                    save_wav(np.asarray(audio, dtype=np.float32).flatten(), LAST_RECORDING_PATH)
+                    if os.path.isfile(LAST_RECORDING_PATH):
+                        st.markdown("🔊 **Listen to your recording:**")
+                        st.audio(LAST_RECORDING_PATH, format="audio/wav")
+
+                    if "Enroll" in bio_action:
+                        with st.spinner("Creating speaker embedding..."):
+                            result = enroll_voice(uid, audio)
+                        if result["success"]:
+                            st.success(result["message"])
+                            st.balloons()
+                        else:
+                            st.error(result["message"])
+                    else:
+                        with st.spinner("Comparing against stored voiceprint..."):
+                            result = verify_voice(uid, audio)
+                        if result["verified"]:
+                            st.session_state.profile_id = uid
+                            st.session_state.verified = True
+                            sm.set_verified(True)
+                            st.session_state.chat_history.append(
+                                {"role": "assistant", "content": f"✅ Voice verified. Welcome, **{uid}**!"}
+                            )
+                            st.rerun()
+                        else:
+                            st.error(result["message"])
+
+                except Exception as e:
+                    st.error(f"Microphone error: {e}")
+
+
+# ═══════════════════════════════════════════════════════════════
+# CHAT PANEL — Scrollable, with voice recording UX and TTS
+# ═══════════════════════════════════════════════════════════════
 
 def render_chat_panel():
     with st.container(**_CONTAINER_KW):
-        # Header
+        # ── Header ───────────────────────────────────────────
         st.markdown("### 💬 Assistant")
         uid = st.session_state.profile_id or "not signed in"
         verified = st.session_state.verified
@@ -541,7 +752,7 @@ def render_chat_panel():
             render_auth_panel()
             return
 
-        # Example commands expander
+        # ── Example commands ─────────────────────────────────
         with st.expander("💡 Example commands", expanded=False):
             examples = [
                 "hey mello load iris dataset",
@@ -551,43 +762,168 @@ def render_chat_panel():
                 "hey mello start training",
                 "hey mello run code",
                 "hey mello search dataset fraud detection",
+                "hey mello help",
             ]
             for ex in examples:
                 st.code(ex, language="text")
 
-        # Chat history
-        for msg in st.session_state.chat_history:
-            with st.chat_message(msg["role"]):
-                st.markdown(msg["content"])
+        # ── Chat history in a scrollable container ───────────
+        chat_container = st.container(height=420)
+        with chat_container:
+            for msg in st.session_state.chat_history:
+                with st.chat_message(msg["role"]):
+                    st.markdown(msg["content"])
 
-        # Voice recording + clear
-        voice_col, clear_col = st.columns([2, 1])
-        if voice_col.button("🎤 Record voice command (4s)", key="chat_record_btn", use_container_width=True):
-            try:
-                audio = AudioCapture().record_fixed(duration=4)
-                tmp_path = Path("artifacts") / "last_command.wav"
-                tmp_path.parent.mkdir(parents=True, exist_ok=True)
-                AudioCapture().save(audio, str(tmp_path))
-                transcript = SpeechToText().transcribe(str(tmp_path))
-                if transcript.strip():
-                    process_command(transcript)
-                else:
-                    st.session_state.chat_history.append({"role": "assistant", "content": "🔇 I could not transcribe the recording. Please try again."})
-            except Exception as e:
-                st.session_state.chat_history.append({"role": "assistant", "content": f"⚠️ Voice command failed: {e}"})
+        # ── TTS playback (autoplay last response) ────────────
+        if st.session_state.last_tts_path and os.path.isfile(st.session_state.last_tts_path):
+            st.audio(st.session_state.last_tts_path, format="audio/mp3", autoplay=True)
+            st.session_state.last_tts_path = None  # clear so it doesn't replay on rerun
 
+        # ── Voice recording controls ─────────────────────────
+        st.markdown("---")
+
+        voice_col, dur_col, tts_col = st.columns([2, 1, 1])
+        with dur_col:
+            voice_duration = st.slider(
+                "⏱️ Duration", 2, 10, 5,
+                key="voice_cmd_duration",
+                help="Recording length in seconds",
+            )
+        with tts_col:
+            st.session_state.tts_enabled = st.toggle(
+                "🔊 TTS",
+                value=st.session_state.tts_enabled,
+                key="tts_toggle",
+                help="Speak assistant responses aloud",
+            )
+
+        with voice_col:
+            if st.button(
+                f"🎤 Record Voice Command ({voice_duration}s)",
+                key="chat_record_btn",
+                use_container_width=True,
+                type="primary",
+            ):
+                _handle_voice_command(voice_duration)
+
+        # ── Action buttons row ───────────────────────────────
+        clear_col, log_col = st.columns(2)
         if clear_col.button("🗑️ Clear Chat", key="clear_chat_btn", use_container_width=True):
-            st.session_state.chat_history = [{"role": "assistant", "content": "Chat cleared. Ready for the next command."}]
+            st.session_state.chat_history = [
+                {"role": "assistant", "content": "Chat cleared. Ready for the next command."}
+            ]
+            st.rerun()
+        if log_col.button("🔒 Sign Out", key="signout_btn", use_container_width=True):
+            st.session_state.verified = False
+            st.session_state.profile_id = ""
+            sm.set_verified(False)
+            st.session_state.chat_history.append(
+                {"role": "assistant", "content": "🔒 Signed out. Please sign in again to continue."}
+            )
             st.rerun()
 
-        # Text input
+        # ── Text input ───────────────────────────────────────
         prompt = st.chat_input("Type a command (e.g. 'hey mello load iris dataset')")
         if prompt:
             process_command(prompt)
             st.rerun()
 
 
-# ── Page Layout ──────────────────────────────────────────────
+def _handle_voice_command(duration: int):
+    """
+    Full voice command pipeline with staged feedback:
+    1. Recording → indicator + spinner
+    2. Playback → st.audio
+    3. Transcription → staged progress
+    4. Wake word check + command processing
+    """
+    # ── Stage 1: Recording ───────────────────────────────
+    st.markdown(
+        f'<div class="recording-indicator">'
+        f'<div class="recording-dot"></div>'
+        f'Recording for {duration}s — speak now…'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+    audio = None
+    try:
+        with st.spinner(f"🔴 Recording for {duration}s..."):
+            cap = AudioCapture()
+            audio = cap.record_fixed(duration=duration)
+    except Exception as e:
+        st.session_state.chat_history.append(
+            {"role": "assistant", "content": f"⚠️ Microphone error: {e}"}
+        )
+        return
+
+    if audio is None or len(audio) == 0:
+        st.session_state.chat_history.append(
+            {"role": "assistant", "content": "⚠️ No audio was captured. Check your microphone."}
+        )
+        return
+
+    peak = float(np.max(np.abs(audio)))
+    if peak < 0.005:
+        st.session_state.chat_history.append(
+            {"role": "assistant", "content": "🔇 Recording is silent. Check that your microphone is enabled and not muted."}
+        )
+        return
+
+    # ── Stage 2: Save & Playback ─────────────────────────
+    tmp_path = Path("artifacts") / "last_command.wav"
+    tmp_path.parent.mkdir(parents=True, exist_ok=True)
+    cap.save(audio, str(tmp_path))
+    st.markdown("🔊 **Your recording:**")
+    st.audio(str(tmp_path), format="audio/wav")
+
+    # ── Stage 3: Transcription ───────────────────────────
+    st.markdown(
+        '<span class="pipeline-stage stage-active">⏳ Transcribing with Whisper...</span>',
+        unsafe_allow_html=True,
+    )
+
+    transcript = ""
+    with st.spinner("⏳ Transcribing with Whisper..."):
+        try:
+            stt = SpeechToText()
+            transcript = stt.transcribe(str(tmp_path))
+        except Exception as e:
+            st.session_state.chat_history.append(
+                {"role": "assistant", "content": f"⚠️ Transcription error: {e}"}
+            )
+            return
+
+    if not transcript.strip():
+        hint = get_last_transcribe_error() or "No speech detected."
+        st.session_state.chat_history.append(
+            {"role": "assistant", "content": f"🔇 Could not transcribe the recording.\n\n*Reason: {hint}*"}
+        )
+        return
+
+    # Show transcription result
+    st.markdown(
+        f'<span class="pipeline-stage stage-done">✅ Transcribed</span>',
+        unsafe_allow_html=True,
+    )
+    st.success(f"🗣️ **Heard:** *\"{transcript}\"*")
+    log(f"🗣️ Voice transcribed: '{transcript}'")
+
+    # ── Stage 4: Process command ─────────────────────────
+    st.markdown(
+        '<span class="pipeline-stage stage-active">🧠 Processing command...</span>',
+        unsafe_allow_html=True,
+    )
+
+    with st.spinner("🧠 Processing command..."):
+        process_command(transcript)
+
+    st.rerun()
+
+
+# ═══════════════════════════════════════════════════════════════
+# PAGE LAYOUT
+# ═══════════════════════════════════════════════════════════════
 
 st.markdown(
     "<h1 style='margin-bottom:0'>🤖 AutoML Workspace Assistant</h1>"
