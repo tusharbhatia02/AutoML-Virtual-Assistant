@@ -84,6 +84,7 @@ DEFAULT_EPOCHS = 20
 # SUPPORTED INTENTS  (used in Intent Detection — Module 6)
 # ─────────────────────────────────────────────────────────
 SUPPORTED_INTENTS = [
+    # Stateful control intents
     "load_dataset",
     "select_model",
     "set_learning_rate",
@@ -92,7 +93,30 @@ SUPPORTED_INTENTS = [
     "start_training",
     "pause_training",
     "stop_training",
+    "resume_training",
     "show_status",
-    "search_kaggle",
-    "unknown",
+    "show_accuracy",
+    "show_loss_curve",
+    # Stateless info intents
+    "search_dataset",
+    "get_dataset_info",
+    "show_competition",
+    "show_leaderboard",
+    # Utility intents
+    "help",
+    "repeat",
+    "unknown_intent",
 ]
+
+# ─────────────────────────────────────────────────────────
+# SUPPORTED DATASETS  (used in Slot Filling — Module 7)
+# ─────────────────────────────────────────────────────────
+SUPPORTED_DATASETS = [
+    "titanic", "iris", "mnist", "cifar10",
+    "boston", "wine", "diabetes", "breast_cancer",
+]
+
+# ─────────────────────────────────────────────────────────
+# TRAINING SIMULATION  (used in Experiment Controller — Module 10)
+# ─────────────────────────────────────────────────────────
+TRAINING_SIMULATION_INTERVAL = 0.5  # seconds between simulated epochs
