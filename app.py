@@ -322,6 +322,8 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = [
         {"role": "assistant", "content": "👋 Welcome to the AutoML Assistant! Sign in or create an account to get started."}
     ]
+if "timer_completion_audio_path" not in st.session_state:
+    st.session_state.timer_completion_audio_path = None
 if "tts_enabled" not in st.session_state:
     st.session_state.tts_enabled = True
 if "show_camera" not in st.session_state:
@@ -329,6 +331,10 @@ if "show_camera" not in st.session_state:
 if "last_tts_path" not in st.session_state:
     st.session_state.last_tts_path = None
 
+# Streamlit hack for live training metrics
+if sm.get("training_status") == "training":
+    time.sleep(0.5)
+    st.rerun()
 
 def log(msg: str):
     sm.append_log(msg)
@@ -339,7 +345,7 @@ def strip_wake_or_bypass(text: str) -> tuple[bool, str]:
     cleaned = text.strip()
     if is_wake_word(cleaned):
         stripped = re.sub(
-            r"^(hey|hi|okay|wake up|hello)\s+mello[\s,:\-]*",
+            r"^(hey|hi|okay|wake up|hello)\s+mycroft[\s,:\-]*",
             "",
             cleaned,
             flags=re.IGNORECASE,
@@ -363,6 +369,32 @@ def _strip_markdown_for_tts(text: str) -> str:
     clean = re.sub(r"\s+", " ", clean).strip()
     return clean
 
+def _format_timer_display(seconds: int) -> str:
+    seconds = int(max(0, seconds))
+    hours, rem = divmod(seconds, 3600)
+    mins, secs = divmod(rem, 60)
+    if hours > 0:
+        return f"{hours:02d}:{mins:02d}:{secs:02d}"
+    return f"{mins:02d}:{secs:02d}"
+
+
+def maybe_announce_timer_completion():
+    timer = sm.get_timer_info()
+    if not timer.get("exists"):
+        return
+
+    if timer.get("status") == "completed" and not sm.timer_completion_announced():
+        msg = f"{timer.get('label', 'timer').title()} completed."
+        sm.set_assistant_response(msg)
+        sm.append_log(f"🔔 Timer completed: {timer.get('label', 'timer')}")
+        st.session_state.chat_history.append({"role": "assistant", "content": f"⏰ {msg}"})
+
+        if st.session_state.tts_enabled:
+            path = tts_speak(msg)
+            if path:
+                st.session_state.timer_completion_audio_path = path
+
+        sm.mark_timer_completion_announced()
 
 def process_command(user_text: str):
     """
@@ -373,14 +405,28 @@ def process_command(user_text: str):
 
     # ── Wake word gate ───────────────────────────────────────
     ok, cleaned = strip_wake_or_bypass(user_text)
+    
+    # Allow pure greetings/farewells through without a wake word (quality of life for UI chat)
+    ui_bypasses = {
+        "hello", "hi", "hey", "good morning", "good evening", "good afternoon", "greetings", "morning", "sup",
+        "bye", "goodbye", "good bye", "see ya", "see you later", "good night", "farewell"
+    }
+    if not ok and user_text.strip().lower() in ui_bypasses:
+        ok = True
+        cleaned = user_text.strip().lower()
+
     if not ok:
         reject_msg = (
-            "🔇 I only respond to commands that start with the wake word **'hey mello'**.\n\n"
-            "Try saying: *'hey mello load iris dataset'*"
+            "🔇 I only respond to commands that start with the wake word **'hey mycroft'**.\n\n"
+            "Try saying: *'hey mycroft load iris dataset'*"
         )
         st.session_state.chat_history.append({"role": "assistant", "content": reject_msg})
         log(f"⚠️ Wake word missing — rejected: '{user_text[:40]}'")
         return
+
+    # If the user only said the wake word ("Hey mycroft"), convert it into a greeting
+    if not cleaned:
+        cleaned = "hello"
 
     # ── NLU + Routing ────────────────────────────────────────
     nlu = understand(cleaned)
@@ -417,6 +463,82 @@ def _status_class(status: str) -> str:
         "stopped": "status-stopped",
     }.get(status, "status-idle")
 
+def render_timer_panel():
+    st.markdown("#### ⏲️ Timer")
+
+    timer_info = sm.get_timer_info()
+
+    if not timer_info:
+        st.caption("No active timer.")
+        return
+
+    remaining = int(timer_info.get("remaining_seconds", 0))
+    mins, secs = divmod(remaining, 60)
+    hours, mins = divmod(mins, 60)
+
+    label = timer_info.get("label", "timer").title()
+    status = timer_info.get("status", "running")
+
+    if hours > 0:
+        time_text = f"{hours:02d}:{mins:02d}:{secs:02d}"
+    else:
+        time_text = f"{mins:02d}:{secs:02d}"
+
+    status_color = "#3fb950" if status == "running" else "#f85149"
+
+    st.markdown(
+        f"""
+        <div style="
+            background: rgba(22, 27, 34, 0.88);
+            border: 1px solid rgba(48, 54, 61, 0.75);
+            border-radius: 16px;
+            padding: 18px 16px;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+        ">
+            <div style="
+                font-size: 0.85rem;
+                color: #8b949e;
+                margin-bottom: 8px;
+                font-weight: 600;
+                letter-spacing: 0.4px;
+            ">
+                ACTIVE TIMER
+            </div>
+            <div style="
+                font-size: 1rem;
+                color: #c9d1d9;
+                margin-bottom: 10px;
+                font-weight: 600;
+            ">
+                {label}
+            </div>
+            <div style="
+                font-size: 2.2rem;
+                font-weight: 700;
+                color: #58a6ff;
+                line-height: 1.1;
+                margin-bottom: 10px;
+                font-variant-numeric: tabular-nums;
+            ">
+                {time_text}
+            </div>
+            <div style="
+                font-size: 0.85rem;
+                font-weight: 700;
+                color: {status_color};
+                text-transform: uppercase;
+                letter-spacing: 0.6px;
+            ">
+                {status}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 def render_dataset_panel(state: dict):
     st.markdown("#### 📚 Dataset")
@@ -436,7 +558,7 @@ def render_dataset_panel(state: dict):
             if profile:
                 st.caption(f"Task: {profile.get('task_family', '—')} · Model: {profile.get('suggested_model', '—')}")
         else:
-            st.caption("No dataset loaded yet. Ask: *'hey mello load iris dataset'*")
+            st.caption("No dataset loaded yet. Ask: *'hey mycroft load iris dataset'*")
     with col_b:
         preview = state.get("dataset_preview", [])
         if preview:
@@ -461,7 +583,7 @@ def render_code_panel(state: dict):
                 key="dl_py_code",
             )
         else:
-            st.caption("No Python code generated yet. Ask: *'hey mello load corresponding code'*")
+            st.caption("No Python code generated yet. Ask: *'hey mycroft load corresponding code'*")
 
     with tab_ipynb:
         notebook = state.get("generated_code_ipynb", "")
@@ -505,6 +627,21 @@ def render_outputs_panel(state: dict):
         unsafe_allow_html=True
     )
 
+    # Output details are hidden until requested by user (or code manually ran)
+    if not state.get("results_requested", False) and state.get("training_status") != "idle":
+        st.info("Metrics are being tracked. Say 'hey mycroft show results' or 'tell the results' to reveal them when ready.")
+        
+        # Real time chart sneak peek
+        if state.get("loss_history") or state.get("accuracy_history"):
+            chart_df = pd.DataFrame({
+                "Loss": state.get("loss_history", []),
+                "Accuracy": state.get("accuracy_history", []),
+            })
+            chart_df.index = range(1, len(chart_df) + 1)
+            st.line_chart(chart_df, use_container_width=True)
+            
+        return
+
     if state.get("loss_history") or state.get("accuracy_history"):
         chart_df = pd.DataFrame(
             {
@@ -520,7 +657,20 @@ def render_outputs_panel(state: dict):
         if code_output:
             st.text(code_output)
         else:
-            st.caption("No output yet. Ask me to run code or start training.")
+            if state.get("training_status") == "idle":
+                st.caption("No output yet. Ask me to run code or start training.")
+            
+        # Download weights logic
+        if os.path.exists("artifacts/model_weights.pkl"):
+            st.markdown("---")
+            with open("artifacts/model_weights.pkl", "rb") as f:
+                st.download_button(
+                    "⬇️ Download Model Weights (.pkl)",
+                    data=f.read(),
+                    file_name=f"{state.get('dataset', 'model')}_weights.pkl",
+                    mime="application/octet-stream",
+                    key="dl_weights",
+                )
         return
 
     for idx, item in enumerate(outputs):
@@ -593,7 +743,7 @@ def render_auth_panel():
                 st.session_state.verified = True
                 sm.set_verified(True)
                 st.session_state.chat_history.append(
-                    {"role": "assistant", "content": f"✅ Welcome back, **{uid}**! You can now use voice or text commands. Try: *'hey mello load iris dataset'*"}
+                    {"role": "assistant", "content": f"✅ Welcome back, **{uid}**! You can now use voice or text commands. Try: *'hey mycroft load iris dataset'*"}
                 )
                 st.rerun()
             else:
@@ -735,6 +885,96 @@ def render_auth_panel():
 # CHAT PANEL — Scrollable, with voice recording UX and TTS
 # ═══════════════════════════════════════════════════════════════
 
+def render_timer_panel_compact():
+    timer = sm.get_timer_info()
+
+    if not timer.get("exists"):
+        st.markdown(
+            """
+            <div style="
+                background: rgba(22, 27, 34, 0.82);
+                border: 1px solid rgba(48, 54, 61, 0.65);
+                border-radius: 12px;
+                padding: 8px 12px;
+                min-height: 64px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                margin-bottom: 10px;
+            ">
+                <div style="font-size:0.76rem;color:#8b949e;font-weight:600;letter-spacing:0.35px;">
+                    ⏲️ TIMER
+                </div>
+                <div style="font-size:0.88rem;color:#6e7681;margin-top:3px;">
+                    No active timer
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        return
+
+    label = str(timer.get("label", "timer")).title()
+    status = str(timer.get("status", "idle")).upper()
+
+    remaining_seconds = int(timer.get("remaining_seconds", 0))
+    hours, rem = divmod(remaining_seconds, 3600)
+    mins, secs = divmod(rem, 60)
+
+    if hours > 0:
+        remaining = f"{hours:02d}:{mins:02d}:{secs:02d}"
+    else:
+        remaining = f"{mins:02d}:{secs:02d}"
+
+    status_color = {
+        "RUNNING": "#3fb950",
+        "PAUSED": "#d29922",
+        "COMPLETED": "#f85149",
+        "STOPPED": "#8b949e",
+    }.get(status, "#8b949e")
+
+    st.markdown(
+        f"""
+        <div style="
+            background: rgba(22, 27, 34, 0.90);
+            border: 1px solid rgba(88, 166, 255, 0.18);
+            border-radius: 12px;
+            padding: 8px 12px;
+            min-height: 64px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.10);
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                gap:8px;
+            ">
+                <div style="font-size:0.76rem;color:#8b949e;font-weight:600;letter-spacing:0.35px;">
+                    ⏲️ TIMER · {label}
+                </div>
+                <div style="font-size:0.70rem;font-weight:700;color:{status_color};letter-spacing:0.45px;">
+                    {status}
+                </div>
+            </div>
+            <div style="
+                font-size:1.45rem;
+                font-weight:700;
+                color:#58a6ff;
+                margin-top:4px;
+                line-height:1.1;
+                font-variant-numeric: tabular-nums;
+            ">
+                {remaining}
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
 def render_chat_panel():
     with st.container(**_CONTAINER_KW):
         # ── Header ───────────────────────────────────────────
@@ -755,14 +995,22 @@ def render_chat_panel():
         # ── Example commands ─────────────────────────────────
         with st.expander("💡 Example commands", expanded=False):
             examples = [
-                "hey mello load iris dataset",
-                "hey mello load corresponding code",
-                "hey mello set learning rate to 0.01",
-                "hey mello set layers to 4",
-                "hey mello start training",
-                "hey mello run code",
-                "hey mello search dataset fraud detection",
-                "hey mello help",
+                "hey mycroft set a timer for 2 minutes",
+                "hey mycroft pause timer",
+                "hey mycroft resume timer",
+                "hey mycroft restart timer",
+                "hey mycroft reset timer",
+                "hey mycroft add 3 minutes to timer",
+                "hey mycroft check timer",
+                "hey mycroft what is the weather in Ottawa today",
+                "hey mycroft load iris dataset",
+                "hey mycroft load corresponding code",
+                "hey mycroft set learning rate to 0.01",
+                "hey mycroft set layers to 4",
+                "hey mycroft start training",
+                "hey mycroft run code",
+                "hey mycroft search dataset fraud detection",
+                "hey mycroft help",
             ]
             for ex in examples:
                 st.code(ex, language="text")
@@ -775,10 +1023,10 @@ def render_chat_panel():
                     st.markdown(msg["content"])
 
         # ── TTS playback (autoplay last response) ────────────
-        if st.session_state.last_tts_path and os.path.isfile(st.session_state.last_tts_path):
-            st.audio(st.session_state.last_tts_path, format="audio/mp3", autoplay=True)
-            st.session_state.last_tts_path = None  # clear so it doesn't replay on rerun
-
+        if st.session_state.timer_completion_audio_path and os.path.isfile(st.session_state.timer_completion_audio_path):
+            st.audio(st.session_state.timer_completion_audio_path, format="audio/mp3", autoplay=True)
+            st.session_state.timer_completion_audio_path = None
+        
         # ── Voice recording controls ─────────────────────────
         st.markdown("---")
 
@@ -823,7 +1071,7 @@ def render_chat_panel():
             st.rerun()
 
         # ── Text input ───────────────────────────────────────
-        prompt = st.chat_input("Type a command (e.g. 'hey mello load iris dataset')")
+        prompt = st.chat_input("Type a command (e.g. 'hey mycroft load iris dataset')")
         if prompt:
             process_command(prompt)
             st.rerun()
@@ -938,16 +1186,24 @@ state = sm.get_state()
 with left:
     with st.container(**_CONTAINER_KW):
         render_dataset_panel(state)
+
     with st.container(**_CONTAINER_KW):
         render_code_panel(state)
+
     with st.container(**_CONTAINER_KW):
         render_outputs_panel(sm.get_state())
 
 with right:
+    render_timer_panel_compact()
     render_chat_panel()
 
 # Auto-refresh UI during active training simulator
-if sm.get_state().get("training_status") == "training":
+maybe_announce_timer_completion()
+
+state_now = sm.get_state()
+timer_now = sm.get_timer_info()
+
+if state_now.get("training_status") == "training" or timer_now.get("status") == "running":
     import time
     time.sleep(1.0)
     st.rerun()

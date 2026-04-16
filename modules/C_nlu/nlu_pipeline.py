@@ -15,7 +15,29 @@ _REQUIRED = {
     "set_batch_size": ["batch_size"],
     "set_epochs": ["epochs"],
     "set_layers": ["layers"],
+
+    # Weather
+    "get_weather": ["city"],
+
+    # Timer
+    "set_timer": ["duration_seconds"],
+    "add_time_to_timer": ["duration_seconds"],
+    "check_timer": [],
+    "pause_timer": [],
+    "resume_timer": [],
+    "stop_timer": [],
+    "restart_timer": [],
+    "reset_timer": [],
+    "cancel_timer": [],
+
+    # Utility
+    "help": [],
+    "repeat": [],
+    "greetings": [],
+    "farewell": [],
+    "out_of_scope": [],
 }
+
 
 def understand(text: str) -> dict:
     normalised = normalize_text(text)
@@ -30,12 +52,18 @@ def understand(text: str) -> dict:
 
     if "learning_rate" in slots and slots["learning_rate"] <= 0:
         invalid_slots["learning_rate"] = "must be > 0"
+
     if "batch_size" in slots and slots["batch_size"] <= 0:
         invalid_slots["batch_size"] = "must be > 0"
+
     if "epochs" in slots and slots["epochs"] <= 0:
         invalid_slots["epochs"] = "must be > 0"
+
     if "layers" in slots and slots["layers"] <= 0:
         invalid_slots["layers"] = "must be > 0"
+
+    if "duration_seconds" in slots and slots["duration_seconds"] <= 0:
+        invalid_slots["duration_seconds"] = "must be > 0"
 
     return {
         "intent": intent,

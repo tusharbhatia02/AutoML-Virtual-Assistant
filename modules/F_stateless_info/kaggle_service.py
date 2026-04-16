@@ -5,6 +5,14 @@ import io
 import subprocess
 from pathlib import Path
 
+# Actively load local .env so Kaggle picks up KAGGLE_USERNAME and KAGGLE_KEY
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).parent.parent.parent / ".env"
+    load_dotenv(env_path)
+except ImportError:
+    pass
+
 
 FALLBACK_SEARCH_RESULTS = {
     "mnist": [
@@ -156,6 +164,51 @@ def search_datasets(query: str, page_size: int = 10) -> dict:
         if rows:
             return {"success": True, "query": query, "results": rows}
 
+    # OpenML fallback
+    try:
+        import openml
+        datasets = openml.datasets.list_datasets(output_format="dataframe")
+        if not datasets.empty:
+            keywords = query.lower().split()
+            mask = datasets["name"].str.lower().apply(lambda n: all(kw in n for kw in keywords))
+            matches = datasets[mask].sort_values("NumberOfInstances", ascending=False).head(page_size)
+            rows = []
+            for _, row in matches.iterrows():
+                rows.append({
+                    "ref": "openml/" + str(row["name"]),
+                    "title": str(row["name"]) + f" (OpenML id: {row['did']})",
+                    "size": str(row["NumberOfInstances"]) + " rows",
+                    "lastUpdated": "",
+                    "downloadCount": "",
+                    "voteCount": "",
+                    "usabilityRating": "1.0",
+                })
+            if rows:
+                return {"success": True, "query": query, "results": rows}
+    except:
+        pass
+        
+    # Hugging Face fallback
+    try:
+        from huggingface_hub import HfApi
+        api = HfApi()
+        hf_matches = list(api.list_datasets(search=query, limit=page_size))
+        rows = []
+        for ds in hf_matches:
+             rows.append({
+                  "ref": "hf/" + ds.id,
+                  "title": ds.id + " (Hugging Face)",
+                  "size": "Unknown rows",
+                  "lastUpdated": str(ds.lastModified) if hasattr(ds, 'lastModified') else "",
+                  "downloadCount": str(ds.downloads) if hasattr(ds, 'downloads') else "",
+                  "voteCount": "",
+                  "usabilityRating": "1.0",
+             })
+        if rows:
+             return {"success": True, "query": query, "results": rows}
+    except:
+        pass
+
     # Hardcoded fallback
     return {"success": True, "query": query, "results": FALLBACK_SEARCH_RESULTS.get(query.lower().strip(), [])}
 
@@ -164,7 +217,16 @@ def resolve_best_dataset_ref(query: str) -> dict:
     result = search_datasets(query, page_size=10)
     rows = result["results"]
     if not rows:
-        return {"success": False, "error": f"No Kaggle datasets found for query '{query}'."}
+        return {
+            "success": False, 
+            "error": (
+                f"No datasets found for query '{query}'.\n\n"
+                f"**Note:** To search Kaggle's live database, you must configure the Kaggle API:\n"
+                f"1. `pip install kaggle`\n"
+                f"2. Get `kaggle.json` from kaggle.com → Settings → Create New Token\n"
+                f"3. Place it in `~/.kaggle/kaggle.json`\n"
+            )
+        }
     row = rows[0]
     ref = row.get("ref") or row.get("id") or row.get("datasetSlug")
     if not ref:

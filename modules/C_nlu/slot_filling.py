@@ -4,8 +4,6 @@ import re
 
 from modules.C_nlu.intent_detection import MODEL_KEYWORDS, normalize_text
 
-# ── Known datasets (for normalisation) ──────────────────────
-
 _KNOWN_DATASETS = {
     "titanic": "titanic",
     "iris": "iris",
@@ -21,42 +19,6 @@ _KNOWN_DATASETS = {
     "breast_cancer": "breast_cancer",
 }
 
-# ── Slot schemas ────────────────────────────────────────────
-
-_SLOT_SCHEMAS: dict[str, list[dict] | None] = {
-    "load_dataset":       [{"name": "dataset",       "type": "str",   "required": True}],
-    "select_model":       [{"name": "model",         "type": "str",   "required": True}],
-    "set_learning_rate":  [{"name": "learning_rate", "type": "float", "required": True}],
-    "set_batch_size":     [{"name": "batch_size",    "type": "int",   "required": True}],
-    "set_epochs":         [{"name": "epochs",        "type": "int",   "required": True}],
-    "set_layers":         [{"name": "layers",        "type": "int",   "required": True}],
-    "search_dataset":     [{"name": "query",         "type": "str",   "required": True}],
-    "get_dataset_info":   [{"name": "dataset",       "type": "str",   "required": False}],
-    "load_code":          [{"name": "dataset",       "type": "str",   "required": False}],
-    "search_code":        [{"name": "query",         "type": "str",   "required": True}],
-    "show_leaderboard":   [{"name": "query",         "type": "str",   "required": False}],
-    # No-slot intents
-    "start_training":     [],
-    "pause_training":     [],
-    "resume_training":    [],
-    "stop_training":      [],
-    "show_status":        [],
-    "show_accuracy":      [],
-    "show_loss_curve":    [],
-    "run_code":           [],
-    "show_output":        [],
-    "help":               [],
-    "repeat":             [],
-    "unknown_intent":     [],
-}
-
-_SUPPORTED_MODELS = set(MODEL_KEYWORDS.values())
-
-
-def get_slot_schema(intent: str) -> list[dict] | None:
-    """Return the slot schema for an intent, or None if the intent is unknown."""
-    return _SLOT_SCHEMAS.get(intent)
-
 
 def _extract_first_number(text: str):
     m = re.search(r"(-?\d+(?:\.\d+)?)", text)
@@ -64,9 +26,7 @@ def _extract_first_number(text: str):
 
 
 def _try_known_dataset(text: str) -> str | None:
-    """Check if any known dataset name appears in the text."""
     t = text.lower().strip()
-    # Try longest matches first to prefer "breast cancer" over partial
     for name in sorted(_KNOWN_DATASETS.keys(), key=len, reverse=True):
         if name in t:
             return _KNOWN_DATASETS[name]
@@ -76,7 +36,6 @@ def _try_known_dataset(text: str) -> str | None:
 def _extract_dataset_phrase(text: str, for_code: bool = False) -> str | None:
     t = text.lower().strip()
 
-    # Try known datasets first
     known = _try_known_dataset(t)
     if known:
         return known
@@ -97,22 +56,79 @@ def _extract_dataset_phrase(text: str, for_code: bool = False) -> str | None:
         m = re.search(pattern, t)
         if m:
             value = m.group(1).strip(" ,:-")
-            
-            # Clean up trailing phrases
             value = re.sub(r"\s+from\s+kaggl?e[l]?\s*$", "", value)
             value = re.sub(r"\s+dataset\s*$", "", value)
             value = re.sub(r"\s+data\s*$", "", value)
             value = value.strip(" ,:-")
-            
+
             if value and value != "corresponding":
-                # Check again if the extracted phrase is a known dataset
                 known2 = _try_known_dataset(value)
                 return known2 or value
+
+    return None
+
+
+def _extract_timer_duration_seconds(text: str) -> int | None:
+    total = 0
+    found = False
+
+    for value, unit in re.findall(
+        r"(\d+(?:\.\d+)?)\s*(hours?|hrs?|hr|minutes?|mins?|min|seconds?|secs?|sec)",
+        text,
+    ):
+        found = True
+        amount = float(value)
+        unit = unit.lower()
+
+        if unit.startswith(("hour", "hr")):
+            total += int(amount * 3600)
+        elif unit.startswith(("minute", "min")):
+            total += int(amount * 60)
+        else:
+            total += int(amount)
+
+    return total if found and total > 0 else None
+
+
+def _extract_timer_label(text: str) -> str | None:
+    m = re.search(r"timer\s+for\s+([a-z0-9 ]+?)\s+(?:for\s+)?\d", text)
+    if m:
+        return m.group(1).strip()
+
+    m = re.search(r"for\s+([a-z0-9 ]+?)\s+timer", text)
+    if m:
+        return m.group(1).strip()
+
+    return None
+
+
+def _extract_weather_city(text: str) -> str | None:
+    patterns = [
+        r"(?:weather|forecast|temperature)\s+(?:in|for)\s+([a-zA-Z .'-]+?)(?:\s+(?:today|tomorrow|on\s+\d{4}-\d{2}-\d{2}))?$",
+        r"(?:does it rain|is it raining|will it rain|is it sunny|is it snowing)\s+in\s+([a-zA-Z .'-]+?)(?:\s+(?:today|tomorrow|on\s+\d{4}-\d{2}-\d{2}))?$",
+        r"(?:what is the weather in|what's the weather in)\s+([a-zA-Z .'-]+?)(?:\s+(?:today|tomorrow|on\s+\d{4}-\d{2}-\d{2}))?$",
+    ]
+    for pattern in patterns:
+        m = re.search(pattern, text, flags=re.IGNORECASE)
+        if m:
+            return m.group(1).strip(" ,?.!")
+    return None
+
+
+def _extract_weather_day(text: str) -> str | None:
+    if "tomorrow" in text:
+        return "tomorrow"
+    if "today" in text:
+        return "today"
+
+    m = re.search(r"\bon\s+(\d{4}-\d{2}-\d{2})\b", text)
+    if m:
+        return m.group(1)
+
     return None
 
 
 def fill_slots(text: str, intent: str) -> dict:
-    """Basic slot extraction (returns flat dict). Used by nlu_pipeline."""
     t = normalize_text(text)
     slots: dict = {}
 
@@ -163,56 +179,36 @@ def fill_slots(text: str, intent: str) -> dict:
         if num is not None:
             slots["layers"] = int(float(num))
 
+    if intent == "set_activation":
+        for act in ["relu", "sigmoid", "tanh", "softmax", "linear"]:
+            if act in t:
+                slots["activation"] = act
+                break
+
+    if intent == "split_dataset":
+        num = _extract_first_number(t)
+        if num is not None:
+            val = float(num)
+            if val > 1.0:
+                val = val / 100.0
+            slots["ratio"] = val
+
+    if intent in {"set_timer", "add_time_to_timer"}:
+        duration = _extract_timer_duration_seconds(t)
+        if duration is not None:
+            slots["duration_seconds"] = duration
+
+    if intent == "set_timer":
+        label = _extract_timer_label(t)
+        if label:
+            slots["label"] = label
+
+    if intent == "get_weather":
+        city = _extract_weather_city(text)
+        if city:
+            slots["city"] = city
+        day = _extract_weather_day(t)
+        if day:
+            slots["day"] = day
+
     return slots
-
-
-def extract_slots(text: str, intent: str) -> dict:
-    """
-    Full slot extraction with validation.
-    Returns: {"slots": {...}, "missing_slots": [...], "invalid_slots": {...}}
-    """
-    slots = fill_slots(text, intent)
-    missing_slots: list[str] = []
-    invalid_slots: dict[str, str] = {}
-
-    schema = _SLOT_SCHEMAS.get(intent, [])
-    if schema is None:
-        schema = []
-
-    for field in schema:
-        name = field["name"]
-        if field.get("required") and name not in slots:
-            missing_slots.append(name)
-
-    # ── Validation ──────────────────────────────────────────
-    if "learning_rate" in slots:
-        lr = slots["learning_rate"]
-        if lr <= 0:
-            invalid_slots["learning_rate"] = "must be > 0"
-        elif lr > 10:
-            invalid_slots["learning_rate"] = "must be <= 10"
-
-    if "batch_size" in slots:
-        bs = slots["batch_size"]
-        if bs <= 0:
-            invalid_slots["batch_size"] = "must be > 0"
-        elif bs > 4096:
-            invalid_slots["batch_size"] = "must be <= 4096"
-
-    if "epochs" in slots:
-        ep = slots["epochs"]
-        if ep <= 0:
-            invalid_slots["epochs"] = "must be > 0"
-        elif ep > 10000:
-            invalid_slots["epochs"] = "must be <= 10000"
-
-    if "layers" in slots:
-        ly = slots["layers"]
-        if ly <= 0:
-            invalid_slots["layers"] = "must be > 0"
-
-    return {
-        "slots": slots,
-        "missing_slots": missing_slots,
-        "invalid_slots": invalid_slots,
-    }

@@ -1,0 +1,461 @@
+2026-04-14 12:52:12,941 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'job salary prediction' ======
+2026-04-14 12:52:13,284 | INFO | No config file found at C:\Users\arham\.openml\config, using default configuration.
+2026-04-14 12:52:13,453 | INFO | Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:52:13,456 | DEBUG | Starting new HTTPS connection (1): www.openml.org:443
+2026-04-14 12:52:15,468 | DEBUG | https://www.openml.org:443 "GET /api/v1/xml/data/list/limit/10000/offset/0 HTTP/1.1" 200 203106
+2026-04-14 12:52:15,872 | INFO | 2.4188552s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:52:16,776 | DEBUG | Starting new HTTPS connection (1): huggingface.co:443
+2026-04-14 12:52:16,932 | DEBUG | https://huggingface.co:443 "GET /api/datasets?search=job+salary+prediction&limit=10 HTTP/1.1" 200 2
+2026-04-14 12:52:16,934 | WARNING | [load_dataset_by_query] Kaggle resolution failed: No datasets found for query 'job salary prediction'.
+
+**Note:** To search Kaggle's live database, you must configure the Kaggle API:
+1. `pip install kaggle`
+2. Get `kaggle.json` from kaggle.com \u2192 Settings \u2192 Create New Token
+3. Place it in `~/.kaggle/kaggle.json`
+. Proceeding to fallback tree.
+2026-04-14 12:52:16,934 | INFO | [_builtin_fallback] Attempting to find local/fallback datasets for query: 'job salary prediction'
+2026-04-14 12:52:16,934 | INFO | [_builtin_fallback] Query 'job salary prediction' not found in static builtins. Trying OpenML Network Fallback...
+2026-04-14 12:52:16,934 | DEBUG | [_openml_fallback] Fetching perfectly matched name: job salary prediction
+2026-04-14 12:52:16,993 | DEBUG | [_openml_fallback] Exact match failed. Falling back to fuzzy keyword search on OpenML.
+2026-04-14 12:52:16,994 | INFO | Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:52:16,995 | DEBUG | Starting new HTTPS connection (1): www.openml.org:443
+2026-04-14 12:52:18,845 | DEBUG | https://www.openml.org:443 "GET /api/v1/xml/data/list/limit/10000/offset/0 HTTP/1.1" 200 203106
+2026-04-14 12:52:19,373 | INFO | 2.3785417s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:52:20,029 | DEBUG | [_huggingface_fallback] OpenML lookup failed. Trying Hugging Face APIs for: 'job salary prediction'
+2026-04-14 12:52:20,087 | DEBUG | https://huggingface.co:443 "GET /api/datasets?search=job+salary+prediction&limit=1 HTTP/1.1" 200 2
+2026-04-14 12:52:20,087 | DEBUG | [_huggingface_fallback] Zero exact matches. Trying relaxed query: 'job salary'
+2026-04-14 12:52:20,146 | DEBUG | https://huggingface.co:443 "GET /api/datasets?search=job+salary&limit=1 HTTP/1.1" 200 480
+2026-04-14 12:52:20,148 | INFO | [_huggingface_fallback] Match found on HuggingFace: jederhion/job_salary_prompts. Requesting parquet distribution.
+2026-04-14 12:52:20,149 | DEBUG | Starting new HTTPS connection (1): datasets-server.huggingface.co:443
+2026-04-14 12:52:20,281 | DEBUG | https://datasets-server.huggingface.co:443 "GET /parquet?dataset=jederhion/job_salary_prompts HTTP/1.1" 200 None
+2026-04-14 12:52:20,282 | INFO | [_huggingface_fallback] Parquet URL located, downloading frame...
+2026-04-14 12:52:21,963 | INFO | [_huggingface_fallback] Successfully downloaded DataFrame for job_salary_prompts
+2026-04-14 12:53:33,134 | DEBUG | matplotlib data path: C:\Users\arham\AppData\Local\Programs\Python\Python311\Lib\site-packages\matplotlib\mpl-data
+2026-04-14 12:53:33,176 | DEBUG | CONFIGDIR=C:\Users\arham\.matplotlib
+2026-04-14 12:53:33,180 | DEBUG | interactive is False
+2026-04-14 12:53:33,182 | DEBUG | platform is win32
+2026-04-14 12:53:33,446 | DEBUG | CACHEDIR=C:\Users\arham\.matplotlib
+2026-04-14 12:53:33,482 | DEBUG | Using fontManager instance from C:\Users\arham\.matplotlib\fontlist-v390.json
+2026-04-14 12:54:05,443 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'cancer anomaly detection dataset 2025' ======
+2026-04-14 12:54:06,136 | INFO | No config file found at C:\Users\arham\.openml\config, using default configuration.
+2026-04-14 12:54:06,317 | INFO | Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:54:06,330 | DEBUG | Starting new HTTPS connection (1): www.openml.org:443
+2026-04-14 12:54:08,153 | DEBUG | https://www.openml.org:443 "GET /api/v1/xml/data/list/limit/10000/offset/0 HTTP/1.1" 200 203106
+2026-04-14 12:54:08,785 | INFO | 2.4671600s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:54:11,393 | DEBUG | Starting new HTTPS connection (1): huggingface.co:443
+2026-04-14 12:54:11,570 | DEBUG | https://huggingface.co:443 "GET /api/datasets?search=cancer+anomaly+detection+dataset+2025&limit=10 HTTP/1.1" 200 2
+2026-04-14 12:54:11,571 | WARNING | [load_dataset_by_query] Kaggle resolution failed: No datasets found for query 'cancer anomaly detection dataset 2025'.
+
+**Note:** To search Kaggle's live database, you must configure the Kaggle API:
+1. `pip install kaggle`
+2. Get `kaggle.json` from kaggle.com \u2192 Settings \u2192 Create New Token
+3. Place it in `~/.kaggle/kaggle.json`
+. Proceeding to fallback tree.
+2026-04-14 12:54:11,571 | INFO | [_builtin_fallback] Attempting to find local/fallback datasets for query: 'cancer anomaly detection dataset 2025'
+2026-04-14 12:54:11,571 | INFO | [_builtin_fallback] Query 'cancer anomaly detection dataset 2025' not found in static builtins. Trying OpenML Network Fallback...
+2026-04-14 12:54:11,571 | DEBUG | [_openml_fallback] Fetching perfectly matched name: cancer anomaly detection dataset 2025
+2026-04-14 12:54:11,804 | DEBUG | [_openml_fallback] Exact match failed. Falling back to fuzzy keyword search on OpenML.
+2026-04-14 12:54:11,805 | INFO | Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:54:11,810 | DEBUG | Starting new HTTPS connection (1): www.openml.org:443
+2026-04-14 12:54:13,735 | DEBUG | https://www.openml.org:443 "GET /api/v1/xml/data/list/limit/10000/offset/0 HTTP/1.1" 200 203106
+2026-04-14 12:54:14,474 | INFO | 2.6684792s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:54:15,160 | DEBUG | [_huggingface_fallback] OpenML lookup failed. Trying Hugging Face APIs for: 'cancer anomaly detection dataset 2025'
+2026-04-14 12:54:15,222 | DEBUG | https://huggingface.co:443 "GET /api/datasets?search=cancer+anomaly+detection+dataset+2025&limit=1 HTTP/1.1" 200 2
+2026-04-14 12:54:15,223 | DEBUG | [_huggingface_fallback] Zero exact matches. Trying relaxed query: 'cancer anomaly'
+2026-04-14 12:54:15,273 | DEBUG | https://huggingface.co:443 "GET /api/datasets?search=cancer+anomaly&limit=1 HTTP/1.1" 200 2
+2026-04-14 12:54:15,273 | WARNING | [FINAL FAULT] Exhausted all remote & local fallback strategies for: 'cancer anomaly detection dataset 2025'
+2026-04-14 12:54:15,290 | DEBUG | text: Could not find a dataset matching 'cancer anomaly detection dataset 2025'. Built-in datasets (always available): iris, mnist, titanic, wine, diabetes, breastcancer. To load any Kaggle dataset, set up the Kaggle CLI: 1. pip install kaggle 2. Go to kaggle.com \u2192 Account \u2192 Create New API Token 3. Place kaggle.json in ~/.kaggle/ Then retry: 'hey mello load cancer anomaly detection dataset 2025'
+2026-04-14 12:54:15,290 | DEBUG | tld: com
+2026-04-14 12:54:15,290 | DEBUG | lang: en
+2026-04-14 12:54:15,290 | DEBUG | slow: False
+2026-04-14 12:54:15,290 | DEBUG | lang_check: True
+2026-04-14 12:54:15,290 | DEBUG | pre_processor_funcs: [<function tone_marks at 0x0000021D2DDED120>, <function end_of_line at 0x0000021D2DDEE200>, <function abbreviations at 0x0000021D2DDEE160>, <function word_sub at 0x0000021D2DDEE340>]
+2026-04-14 12:54:15,290 | DEBUG | tokenizer_func: <bound method Tokenizer.run of re.compile('(?<=\\?).|(?<=!).|(?<=\uff1f).|(?<=\uff01).|(?<!\\.[a-z])\\. |(?<!\\.[a-z]), |(?<!\\d):|\u2025|\\]|\u3001|\\[|\u3002|\uff0c|…|;|¿|\\)|—|\uff1a|\u060c|\\(|¡|\\\n', re.IGNORECASE) from: [<function tone_marks at 0x0000021D2DDEE520>, <function period_comma at 0x0000021D2DDEE5C0>, <function colon at 0x0000021D2DDEE660>, <function other_punctuation at 0x0000021D2DDEE700>]>
+2026-04-14 12:54:15,291 | DEBUG | timeout: None
+2026-04-14 12:54:15,291 | DEBUG | langs: {'af': 'Afrikaans', 'am': 'Amharic', 'ar': 'Arabic', 'bg': 'Bulgarian', 'bn': 'Bengali', 'bs': 'Bosnian', 'ca': 'Catalan', 'cs': 'Czech', 'cy': 'Welsh', 'da': 'Danish', 'de': 'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish', 'et': 'Estonian', 'eu': 'Basque', 'fi': 'Finnish', 'fr': 'French', 'fr-CA': 'French (Canada)', 'gl': 'Galician', 'gu': 'Gujarati', 'ha': 'Hausa', 'hi': 'Hindi', 'hr': 'Croatian', 'hu': 'Hungarian', 'id': 'Indonesian', 'is': 'Icelandic', 'it': 'Italian', 'iw': 'Hebrew', 'ja': 'Japanese', 'jw': 'Javanese', 'km': 'Khmer', 'kn': 'Kannada', 'ko': 'Korean', 'la': 'Latin', 'lt': 'Lithuanian', 'lv': 'Latvian', 'ml': 'Malayalam', 'mr': 'Marathi', 'ms': 'Malay', 'my': 'Myanmar (Burmese)', 'ne': 'Nepali', 'nl': 'Dutch', 'no': 'Norwegian', 'pa': 'Punjabi (Gurmukhi)', 'pl': 'Polish', 'pt': 'Portuguese (Brazil)', 'pt-PT': 'Portuguese (Portugal)', 'ro': 'Romanian', 'ru': 'Russian', 'si': 'Sinhala', 'sk': 'Slovak', 'sq': 'Albanian', 'sr': 'Serbian', 'su': 'Sundanese', 'sv': 'Swedish', 'sw': 'Swahili', 'ta': 'Tamil', 'te': 'Telugu', 'th': 'Thai', 'tl': 'Filipino', 'tr': 'Turkish', 'uk': 'Ukrainian', 'ur': 'Urdu', 'vi': 'Vietnamese', 'yue': 'Cantonese', 'zh-CN': 'Chinese (Simplified)', 'zh-TW': 'Chinese (Mandarin/Taiwan)', 'zh': 'Chinese (Mandarin)'}
+2026-04-14 12:54:15,291 | DEBUG | pre-processing: <function tone_marks at 0x0000021D2DDED120>
+2026-04-14 12:54:15,291 | DEBUG | pre-processing: <function end_of_line at 0x0000021D2DDEE200>
+2026-04-14 12:54:15,291 | DEBUG | pre-processing: <function abbreviations at 0x0000021D2DDEE160>
+2026-04-14 12:54:15,291 | DEBUG | pre-processing: <function word_sub at 0x0000021D2DDEE340>
+2026-04-14 12:54:15,292 | DEBUG | tokenizing: <bound method Tokenizer.run of re.compile('(?<=\\?).|(?<=!).|(?<=\uff1f).|(?<=\uff01).|(?<!\\.[a-z])\\. |(?<!\\.[a-z]), |(?<!\\d):|\u2025|\\]|\u3001|\\[|\u3002|\uff0c|…|;|¿|\\)|—|\uff1a|\u060c|\\(|¡|\\\n', re.IGNORECASE) from: [<function tone_marks at 0x0000021D2DDEE520>, <function period_comma at 0x0000021D2DDEE5C0>, <function colon at 0x0000021D2DDEE660>, <function other_punctuation at 0x0000021D2DDEE700>]>
+2026-04-14 12:54:15,292 | DEBUG | text_parts: ["Could not find a dataset matching 'cancer anomaly detection dataset 2025'", 'Built-in datasets', 'always available', 'iris', 'mnist', 'titanic', 'wine', 'diabetes', 'breastcancer', 'To load any Kaggle dataset', 'set up the Kaggle CLI', '1', 'pip install kaggle 2', 'Go to kaggle.com \u2192 Account \u2192 Create New API Token 3', 'Place kaggle.json in ~/.kaggle/ Then retry', "'hey mello load cancer anomaly detection dataset 2025'"]
+2026-04-14 12:54:15,292 | DEBUG | text_parts: 16
+2026-04-14 12:54:15,292 | DEBUG | data-0: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22Could%20not%20find%20a%20dataset%20matching%20%27cancer%20anomaly%20detection%20dataset%202025%27%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,292 | DEBUG | data-1: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22Built-in%20datasets%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,294 | DEBUG | data-2: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22always%20available%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,294 | DEBUG | data-3: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22iris%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,294 | DEBUG | data-4: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22mnist%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,294 | DEBUG | data-5: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22titanic%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,294 | DEBUG | data-6: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22wine%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,294 | DEBUG | data-7: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22diabetes%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,294 | DEBUG | data-8: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22breastcancer%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,295 | DEBUG | data-9: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22To%20load%20any%20Kaggle%20dataset%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,295 | DEBUG | data-10: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22set%20up%20the%20Kaggle%20CLI%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,295 | DEBUG | data-11: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%221%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,298 | DEBUG | data-12: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22pip%20install%20kaggle%202%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,298 | DEBUG | data-13: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22Go%20to%20kaggle.com%20%5C%5Cu2192%20Account%20%5C%5Cu2192%20Create%20New%20API%20Token%203%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,298 | DEBUG | data-14: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22Place%20kaggle.json%20in%20~/.kaggle/%20Then%20retry%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,298 | DEBUG | data-15: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22%27hey%20mello%20load%20cancer%20anomaly%20detection%20dataset%202025%27%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:54:15,298 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:15,682 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:15,727 | DEBUG | headers-0: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '227'}
+2026-04-14 12:54:15,728 | DEBUG | url-0: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:15,728 | DEBUG | status-0: 200
+2026-04-14 12:54:15,730 | DEBUG | part-0 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:15,730 | DEBUG | part-0 created
+2026-04-14 12:54:15,731 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:15,988 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:16,009 | DEBUG | headers-1: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '149'}
+2026-04-14 12:54:16,010 | DEBUG | url-1: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:16,010 | DEBUG | status-1: 200
+2026-04-14 12:54:16,011 | DEBUG | part-1 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:16,011 | DEBUG | part-1 created
+2026-04-14 12:54:16,012 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:16,296 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:16,317 | DEBUG | headers-2: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '148'}
+2026-04-14 12:54:16,317 | DEBUG | url-2: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:16,318 | DEBUG | status-2: 200
+2026-04-14 12:54:16,318 | DEBUG | part-2 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:16,318 | DEBUG | part-2 created
+2026-04-14 12:54:16,318 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:16,602 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:16,604 | DEBUG | headers-3: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '134'}
+2026-04-14 12:54:16,604 | DEBUG | url-3: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:16,604 | DEBUG | status-3: 200
+2026-04-14 12:54:16,606 | DEBUG | part-3 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:16,606 | DEBUG | part-3 created
+2026-04-14 12:54:16,606 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:16,811 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:16,816 | DEBUG | headers-4: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '135'}
+2026-04-14 12:54:16,816 | DEBUG | url-4: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:16,817 | DEBUG | status-4: 200
+2026-04-14 12:54:16,817 | DEBUG | part-4 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:16,817 | DEBUG | part-4 created
+2026-04-14 12:54:16,817 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:17,115 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:17,118 | DEBUG | headers-5: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '137'}
+2026-04-14 12:54:17,119 | DEBUG | url-5: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:17,119 | DEBUG | status-5: 200
+2026-04-14 12:54:17,119 | DEBUG | part-5 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:17,119 | DEBUG | part-5 created
+2026-04-14 12:54:17,120 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:17,322 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:17,329 | DEBUG | headers-6: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '134'}
+2026-04-14 12:54:17,329 | DEBUG | url-6: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:17,329 | DEBUG | status-6: 200
+2026-04-14 12:54:17,329 | DEBUG | part-6 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:17,329 | DEBUG | part-6 created
+2026-04-14 12:54:17,330 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:17,541 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:17,546 | DEBUG | headers-7: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '138'}
+2026-04-14 12:54:17,547 | DEBUG | url-7: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:17,547 | DEBUG | status-7: 200
+2026-04-14 12:54:17,547 | DEBUG | part-7 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:17,547 | DEBUG | part-7 created
+2026-04-14 12:54:17,547 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:17,831 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:17,834 | DEBUG | headers-8: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '142'}
+2026-04-14 12:54:17,834 | DEBUG | url-8: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:17,835 | DEBUG | status-8: 200
+2026-04-14 12:54:17,835 | DEBUG | part-8 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:17,835 | DEBUG | part-8 created
+2026-04-14 12:54:17,836 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:18,138 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:18,165 | DEBUG | headers-9: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '164'}
+2026-04-14 12:54:18,165 | DEBUG | url-9: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:18,165 | DEBUG | status-9: 200
+2026-04-14 12:54:18,165 | DEBUG | part-9 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:18,165 | DEBUG | part-9 created
+2026-04-14 12:54:18,167 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:18,447 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:18,467 | DEBUG | headers-10: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '159'}
+2026-04-14 12:54:18,467 | DEBUG | url-10: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:18,467 | DEBUG | status-10: 200
+2026-04-14 12:54:18,467 | DEBUG | part-10 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:18,467 | DEBUG | part-10 created
+2026-04-14 12:54:18,468 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:18,753 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:18,758 | DEBUG | headers-11: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '131'}
+2026-04-14 12:54:18,758 | DEBUG | url-11: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:18,759 | DEBUG | status-11: 200
+2026-04-14 12:54:18,759 | DEBUG | part-11 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:18,759 | DEBUG | part-11 created
+2026-04-14 12:54:18,760 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:19,061 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:19,080 | DEBUG | headers-12: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '156'}
+2026-04-14 12:54:19,081 | DEBUG | url-12: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:19,081 | DEBUG | status-12: 200
+2026-04-14 12:54:19,081 | DEBUG | part-12 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:19,081 | DEBUG | part-12 created
+2026-04-14 12:54:19,083 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:19,471 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:19,520 | DEBUG | headers-13: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '221'}
+2026-04-14 12:54:19,520 | DEBUG | url-13: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:19,520 | DEBUG | status-13: 200
+2026-04-14 12:54:19,523 | DEBUG | part-13 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:19,523 | DEBUG | part-13 created
+2026-04-14 12:54:19,523 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:19,776 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:19,815 | DEBUG | headers-14: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '182'}
+2026-04-14 12:54:19,815 | DEBUG | url-14: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:19,815 | DEBUG | status-14: 200
+2026-04-14 12:54:19,817 | DEBUG | part-14 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:19,817 | DEBUG | part-14 created
+2026-04-14 12:54:19,818 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:54:20,187 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:54:20,220 | DEBUG | headers-15: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '202'}
+2026-04-14 12:54:20,220 | DEBUG | url-15: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:54:20,221 | DEBUG | status-15: 200
+2026-04-14 12:54:20,230 | DEBUG | part-15 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\adfec83a8513ce31.mp3'>
+2026-04-14 12:54:20,230 | DEBUG | part-15 created
+2026-04-14 12:54:20,238 | DEBUG | Saved to C:\Users\arham\AppData\Local\Temp\automl_tts_cache\adfec83a8513ce31.mp3
+2026-04-14 12:54:45,478 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'id s' ======
+2026-04-14 12:54:45,503 | INFO | Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:54:45,510 | DEBUG | Starting new HTTPS connection (1): www.openml.org:443
+2026-04-14 12:54:47,326 | DEBUG | https://www.openml.org:443 "GET /api/v1/xml/data/list/limit/10000/offset/0 HTTP/1.1" 200 203106
+2026-04-14 12:54:48,004 | INFO | 2.4991791s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:54:50,698 | INFO | [_builtin_fallback] Attempting to find local/fallback datasets for query: 'id s'
+2026-04-14 12:54:50,698 | INFO | [_builtin_fallback] Query 'id s' not found in static builtins. Trying OpenML Network Fallback...
+2026-04-14 12:54:50,698 | DEBUG | [_openml_fallback] Fetching perfectly matched name: id s
+2026-04-14 12:54:50,910 | DEBUG | [_openml_fallback] Exact match failed. Falling back to fuzzy keyword search on OpenML.
+2026-04-14 12:54:50,912 | INFO | Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:54:50,917 | DEBUG | Starting new HTTPS connection (1): www.openml.org:443
+2026-04-14 12:54:52,754 | DEBUG | https://www.openml.org:443 "GET /api/v1/xml/data/list/limit/10000/offset/0 HTTP/1.1" 200 203106
+2026-04-14 12:54:53,321 | INFO | 2.4081178s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:54:59,887 | INFO | pickle write Covid-19-Case-Surveillance-Public-Use-Dataset
+2026-04-14 12:55:04,178 | DEBUG | Saved dataset 43365: Covid-19-Case-Surveillance-Public-Use-Dataset to file C:\Users\arham\.openml\org\openml\www\datasets\43365\dataset_43365.pkl.py3
+2026-04-14 12:56:17,197 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'id s' ======
+2026-04-14 12:56:17,225 | INFO | Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:56:17,227 | DEBUG | Starting new HTTPS connection (1): www.openml.org:443
+2026-04-14 12:56:18,956 | DEBUG | https://www.openml.org:443 "GET /api/v1/xml/data/list/limit/10000/offset/0 HTTP/1.1" 200 203106
+2026-04-14 12:56:19,674 | INFO | 2.4489872s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:56:22,273 | INFO | [_builtin_fallback] Attempting to find local/fallback datasets for query: 'id s'
+2026-04-14 12:56:22,273 | INFO | [_builtin_fallback] Query 'id s' not found in static builtins. Trying OpenML Network Fallback...
+2026-04-14 12:56:22,273 | DEBUG | [_openml_fallback] Fetching perfectly matched name: id s
+2026-04-14 12:56:22,538 | DEBUG | [_openml_fallback] Exact match failed. Falling back to fuzzy keyword search on OpenML.
+2026-04-14 12:56:22,539 | INFO | Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:56:22,543 | DEBUG | Starting new HTTPS connection (1): www.openml.org:443
+2026-04-14 12:56:24,502 | DEBUG | https://www.openml.org:443 "GET /api/v1/xml/data/list/limit/10000/offset/0 HTTP/1.1" 200 203106
+2026-04-14 12:56:25,082 | INFO | 2.5424001s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:56:41,080 | INFO | pickle write Covid-19-Case-Surveillance-Public-Use-Dataset
+2026-04-14 12:56:49,599 | DEBUG | Saved dataset 43365: Covid-19-Case-Surveillance-Public-Use-Dataset to file C:\Users\arham\.openml\org\openml\www\datasets\43365\dataset_43365.pkl.py3
+2026-04-14 12:57:59,892 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'smartphone usage and addiction analysis' ======
+2026-04-14 12:57:59,929 | INFO | Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:57:59,934 | DEBUG | Starting new HTTPS connection (1): www.openml.org:443
+2026-04-14 12:58:02,009 | DEBUG | https://www.openml.org:443 "GET /api/v1/xml/data/list/limit/10000/offset/0 HTTP/1.1" 200 203106
+2026-04-14 12:58:02,649 | INFO | 2.7202184s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:58:05,034 | DEBUG | Starting new HTTPS connection (1): huggingface.co:443
+2026-04-14 12:58:05,204 | DEBUG | https://huggingface.co:443 "GET /api/datasets?search=smartphone+usage+and+addiction+analysis&limit=10 HTTP/1.1" 200 2
+2026-04-14 12:58:05,205 | WARNING | [load_dataset_by_query] Kaggle resolution failed: No datasets found for query 'smartphone usage and addiction analysis'.
+
+**Note:** To search Kaggle's live database, you must configure the Kaggle API:
+1. `pip install kaggle`
+2. Get `kaggle.json` from kaggle.com \u2192 Settings \u2192 Create New Token
+3. Place it in `~/.kaggle/kaggle.json`
+. Proceeding to fallback tree.
+2026-04-14 12:58:05,206 | INFO | [_builtin_fallback] Attempting to find local/fallback datasets for query: 'smartphone usage and addiction analysis'
+2026-04-14 12:58:05,206 | INFO | [_builtin_fallback] Query 'smartphone usage and addiction analysis' not found in static builtins. Trying OpenML Network Fallback...
+2026-04-14 12:58:05,206 | DEBUG | [_openml_fallback] Fetching perfectly matched name: smartphone usage and addiction analysis
+2026-04-14 12:58:05,436 | DEBUG | [_openml_fallback] Exact match failed. Falling back to fuzzy keyword search on OpenML.
+2026-04-14 12:58:05,437 | INFO | Starting [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:58:05,440 | DEBUG | Starting new HTTPS connection (1): www.openml.org:443
+2026-04-14 12:58:07,620 | DEBUG | https://www.openml.org:443 "GET /api/v1/xml/data/list/limit/10000/offset/0 HTTP/1.1" 200 203106
+2026-04-14 12:58:08,181 | INFO | 2.7436874s taken for [get] request for the URL https://www.openml.org/api/v1/xml/data/list/limit/10000/offset/0
+2026-04-14 12:58:10,181 | DEBUG | [_huggingface_fallback] OpenML lookup failed. Trying Hugging Face APIs for: 'smartphone usage and addiction analysis'
+2026-04-14 12:58:10,234 | DEBUG | https://huggingface.co:443 "GET /api/datasets?search=smartphone+usage+and+addiction+analysis&limit=1 HTTP/1.1" 200 2
+2026-04-14 12:58:10,234 | DEBUG | [_huggingface_fallback] Zero exact matches. Trying relaxed query: 'smartphone usage'
+2026-04-14 12:58:10,285 | DEBUG | https://huggingface.co:443 "GET /api/datasets?search=smartphone+usage&limit=1 HTTP/1.1" 200 2
+2026-04-14 12:58:10,286 | WARNING | [FINAL FAULT] Exhausted all remote & local fallback strategies for: 'smartphone usage and addiction analysis'
+2026-04-14 12:58:10,286 | DEBUG | text: Could not find a dataset matching 'smartphone usage and addiction analysis'. Built-in datasets (always available): iris, mnist, titanic, wine, diabetes, breastcancer. To load any Kaggle dataset, set up the Kaggle CLI: 1. pip install kaggle 2. Go to kaggle.com \u2192 Account \u2192 Create New API Token 3. Place kaggle.json in ~/.kaggle/ Then retry: 'hey mello load smartphone usage and addiction analysis'
+2026-04-14 12:58:10,287 | DEBUG | tld: com
+2026-04-14 12:58:10,287 | DEBUG | lang: en
+2026-04-14 12:58:10,287 | DEBUG | slow: False
+2026-04-14 12:58:10,287 | DEBUG | lang_check: True
+2026-04-14 12:58:10,287 | DEBUG | pre_processor_funcs: [<function tone_marks at 0x0000021D2DDED120>, <function end_of_line at 0x0000021D2DDEE200>, <function abbreviations at 0x0000021D2DDEE160>, <function word_sub at 0x0000021D2DDEE340>]
+2026-04-14 12:58:10,287 | DEBUG | tokenizer_func: <bound method Tokenizer.run of re.compile('(?<=\\?).|(?<=!).|(?<=\uff1f).|(?<=\uff01).|(?<!\\.[a-z])\\. |(?<!\\.[a-z]), |(?<!\\d):|\u2025|\\]|\u3001|\\[|\u3002|\uff0c|…|;|¿|\\)|—|\uff1a|\u060c|\\(|¡|\\\n', re.IGNORECASE) from: [<function tone_marks at 0x0000021D2DDEE520>, <function period_comma at 0x0000021D2DDEE5C0>, <function colon at 0x0000021D2DDEE660>, <function other_punctuation at 0x0000021D2DDEE700>]>
+2026-04-14 12:58:10,287 | DEBUG | timeout: None
+2026-04-14 12:58:10,287 | DEBUG | langs: {'af': 'Afrikaans', 'am': 'Amharic', 'ar': 'Arabic', 'bg': 'Bulgarian', 'bn': 'Bengali', 'bs': 'Bosnian', 'ca': 'Catalan', 'cs': 'Czech', 'cy': 'Welsh', 'da': 'Danish', 'de': 'German', 'el': 'Greek', 'en': 'English', 'es': 'Spanish', 'et': 'Estonian', 'eu': 'Basque', 'fi': 'Finnish', 'fr': 'French', 'fr-CA': 'French (Canada)', 'gl': 'Galician', 'gu': 'Gujarati', 'ha': 'Hausa', 'hi': 'Hindi', 'hr': 'Croatian', 'hu': 'Hungarian', 'id': 'Indonesian', 'is': 'Icelandic', 'it': 'Italian', 'iw': 'Hebrew', 'ja': 'Japanese', 'jw': 'Javanese', 'km': 'Khmer', 'kn': 'Kannada', 'ko': 'Korean', 'la': 'Latin', 'lt': 'Lithuanian', 'lv': 'Latvian', 'ml': 'Malayalam', 'mr': 'Marathi', 'ms': 'Malay', 'my': 'Myanmar (Burmese)', 'ne': 'Nepali', 'nl': 'Dutch', 'no': 'Norwegian', 'pa': 'Punjabi (Gurmukhi)', 'pl': 'Polish', 'pt': 'Portuguese (Brazil)', 'pt-PT': 'Portuguese (Portugal)', 'ro': 'Romanian', 'ru': 'Russian', 'si': 'Sinhala', 'sk': 'Slovak', 'sq': 'Albanian', 'sr': 'Serbian', 'su': 'Sundanese', 'sv': 'Swedish', 'sw': 'Swahili', 'ta': 'Tamil', 'te': 'Telugu', 'th': 'Thai', 'tl': 'Filipino', 'tr': 'Turkish', 'uk': 'Ukrainian', 'ur': 'Urdu', 'vi': 'Vietnamese', 'yue': 'Cantonese', 'zh-CN': 'Chinese (Simplified)', 'zh-TW': 'Chinese (Mandarin/Taiwan)', 'zh': 'Chinese (Mandarin)'}
+2026-04-14 12:58:10,287 | DEBUG | pre-processing: <function tone_marks at 0x0000021D2DDED120>
+2026-04-14 12:58:10,288 | DEBUG | pre-processing: <function end_of_line at 0x0000021D2DDEE200>
+2026-04-14 12:58:10,288 | DEBUG | pre-processing: <function abbreviations at 0x0000021D2DDEE160>
+2026-04-14 12:58:10,288 | DEBUG | pre-processing: <function word_sub at 0x0000021D2DDEE340>
+2026-04-14 12:58:10,288 | DEBUG | tokenizing: <bound method Tokenizer.run of re.compile('(?<=\\?).|(?<=!).|(?<=\uff1f).|(?<=\uff01).|(?<!\\.[a-z])\\. |(?<!\\.[a-z]), |(?<!\\d):|\u2025|\\]|\u3001|\\[|\u3002|\uff0c|…|;|¿|\\)|—|\uff1a|\u060c|\\(|¡|\\\n', re.IGNORECASE) from: [<function tone_marks at 0x0000021D2DDEE520>, <function period_comma at 0x0000021D2DDEE5C0>, <function colon at 0x0000021D2DDEE660>, <function other_punctuation at 0x0000021D2DDEE700>]>
+2026-04-14 12:58:10,288 | DEBUG | text_parts: ["Could not find a dataset matching 'smartphone usage and addiction analysis'", 'Built-in datasets', 'always available', 'iris', 'mnist', 'titanic', 'wine', 'diabetes', 'breastcancer', 'To load any Kaggle dataset', 'set up the Kaggle CLI', '1', 'pip install kaggle 2', 'Go to kaggle.com \u2192 Account \u2192 Create New API Token 3', 'Place kaggle.json in ~/.kaggle/ Then retry', "'hey mello load smartphone usage and addiction analysis'"]
+2026-04-14 12:58:10,289 | DEBUG | text_parts: 16
+2026-04-14 12:58:10,289 | DEBUG | data-0: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22Could%20not%20find%20a%20dataset%20matching%20%27smartphone%20usage%20and%20addiction%20analysis%27%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,289 | DEBUG | data-1: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22Built-in%20datasets%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,289 | DEBUG | data-2: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22always%20available%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,289 | DEBUG | data-3: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22iris%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,290 | DEBUG | data-4: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22mnist%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,290 | DEBUG | data-5: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22titanic%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,290 | DEBUG | data-6: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22wine%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,290 | DEBUG | data-7: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22diabetes%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,290 | DEBUG | data-8: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22breastcancer%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,290 | DEBUG | data-9: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22To%20load%20any%20Kaggle%20dataset%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,291 | DEBUG | data-10: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22set%20up%20the%20Kaggle%20CLI%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,291 | DEBUG | data-11: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%221%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,291 | DEBUG | data-12: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22pip%20install%20kaggle%202%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,291 | DEBUG | data-13: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22Go%20to%20kaggle.com%20%5C%5Cu2192%20Account%20%5C%5Cu2192%20Create%20New%20API%20Token%203%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,291 | DEBUG | data-14: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22Place%20kaggle.json%20in%20~/.kaggle/%20Then%20retry%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,292 | DEBUG | data-15: f.req=%5B%5B%5B%22jQ1olc%22%2C%22%5B%5C%22%27hey%20mello%20load%20smartphone%20usage%20and%20addiction%20analysis%27%5C%22%2C%5C%22en%5C%22%2Cnull%2C%5C%22null%5C%22%5D%22%2Cnull%2C%22generic%22%5D%5D%5D&
+2026-04-14 12:58:10,293 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:10,694 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:10,774 | DEBUG | headers-0: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '229'}
+2026-04-14 12:58:10,774 | DEBUG | url-0: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:10,774 | DEBUG | status-0: 200
+2026-04-14 12:58:10,777 | DEBUG | part-0 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:10,778 | DEBUG | part-0 created
+2026-04-14 12:58:10,778 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:11,101 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:11,124 | DEBUG | headers-1: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '149'}
+2026-04-14 12:58:11,126 | DEBUG | url-1: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:11,126 | DEBUG | status-1: 200
+2026-04-14 12:58:11,126 | DEBUG | part-1 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:11,126 | DEBUG | part-1 created
+2026-04-14 12:58:11,128 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:11,512 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:11,520 | DEBUG | headers-2: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '148'}
+2026-04-14 12:58:11,520 | DEBUG | url-2: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:11,520 | DEBUG | status-2: 200
+2026-04-14 12:58:11,521 | DEBUG | part-2 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:11,521 | DEBUG | part-2 created
+2026-04-14 12:58:11,523 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:11,922 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:11,926 | DEBUG | headers-3: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '134'}
+2026-04-14 12:58:11,926 | DEBUG | url-3: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:11,927 | DEBUG | status-3: 200
+2026-04-14 12:58:11,927 | DEBUG | part-3 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:11,927 | DEBUG | part-3 created
+2026-04-14 12:58:11,928 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:12,138 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:12,143 | DEBUG | headers-4: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '135'}
+2026-04-14 12:58:12,143 | DEBUG | url-4: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:12,143 | DEBUG | status-4: 200
+2026-04-14 12:58:12,143 | DEBUG | part-4 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:12,143 | DEBUG | part-4 created
+2026-04-14 12:58:12,144 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:12,535 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:12,539 | DEBUG | headers-5: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '137'}
+2026-04-14 12:58:12,540 | DEBUG | url-5: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:12,540 | DEBUG | status-5: 200
+2026-04-14 12:58:12,540 | DEBUG | part-5 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:12,540 | DEBUG | part-5 created
+2026-04-14 12:58:12,542 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:12,841 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:12,844 | DEBUG | headers-6: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '134'}
+2026-04-14 12:58:12,844 | DEBUG | url-6: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:12,844 | DEBUG | status-6: 200
+2026-04-14 12:58:12,844 | DEBUG | part-6 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:12,844 | DEBUG | part-6 created
+2026-04-14 12:58:12,845 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:13,126 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:13,132 | DEBUG | headers-7: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '138'}
+2026-04-14 12:58:13,134 | DEBUG | url-7: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:13,134 | DEBUG | status-7: 200
+2026-04-14 12:58:13,134 | DEBUG | part-7 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:13,134 | DEBUG | part-7 created
+2026-04-14 12:58:13,135 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:13,456 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:13,460 | DEBUG | headers-8: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '142'}
+2026-04-14 12:58:13,460 | DEBUG | url-8: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:13,460 | DEBUG | status-8: 200
+2026-04-14 12:58:13,460 | DEBUG | part-8 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:13,460 | DEBUG | part-8 created
+2026-04-14 12:58:13,461 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:13,763 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:13,780 | DEBUG | headers-9: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '164'}
+2026-04-14 12:58:13,780 | DEBUG | url-9: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:13,780 | DEBUG | status-9: 200
+2026-04-14 12:58:13,781 | DEBUG | part-9 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:13,781 | DEBUG | part-9 created
+2026-04-14 12:58:13,782 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:14,176 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:14,195 | DEBUG | headers-10: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '159'}
+2026-04-14 12:58:14,195 | DEBUG | url-10: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:14,195 | DEBUG | status-10: 200
+2026-04-14 12:58:14,196 | DEBUG | part-10 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:14,196 | DEBUG | part-10 created
+2026-04-14 12:58:14,196 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:14,480 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:14,482 | DEBUG | headers-11: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '131'}
+2026-04-14 12:58:14,482 | DEBUG | url-11: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:14,482 | DEBUG | status-11: 200
+2026-04-14 12:58:14,482 | DEBUG | part-11 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:14,483 | DEBUG | part-11 created
+2026-04-14 12:58:14,483 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:14,788 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:14,812 | DEBUG | headers-12: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '156'}
+2026-04-14 12:58:14,813 | DEBUG | url-12: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:14,813 | DEBUG | status-12: 200
+2026-04-14 12:58:14,813 | DEBUG | part-12 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:14,813 | DEBUG | part-12 created
+2026-04-14 12:58:14,814 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:15,197 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:15,238 | DEBUG | headers-13: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '221'}
+2026-04-14 12:58:15,238 | DEBUG | url-13: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:15,238 | DEBUG | status-13: 200
+2026-04-14 12:58:15,243 | DEBUG | part-13 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:15,243 | DEBUG | part-13 created
+2026-04-14 12:58:15,243 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:15,608 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:15,638 | DEBUG | headers-14: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '182'}
+2026-04-14 12:58:15,639 | DEBUG | url-14: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:15,639 | DEBUG | status-14: 200
+2026-04-14 12:58:15,640 | DEBUG | part-14 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:15,641 | DEBUG | part-14 created
+2026-04-14 12:58:15,641 | DEBUG | Starting new HTTPS connection (1): translate.google.com:443
+2026-04-14 12:58:16,015 | DEBUG | https://translate.google.com:443 "POST /_/TranslateWebserverUi/data/batchexecute HTTP/1.1" 200 None
+2026-04-14 12:58:16,047 | DEBUG | headers-15: {'Referer': 'http://translate.google.com/', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.106 Safari/537.36', 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8', 'Content-Length': '204'}
+2026-04-14 12:58:16,047 | DEBUG | url-15: https://translate.google.com/_/TranslateWebserverUi/data/batchexecute
+2026-04-14 12:58:16,047 | DEBUG | status-15: 200
+2026-04-14 12:58:16,048 | DEBUG | part-15 written to <_io.BufferedWriter name='C:\\Users\\arham\\AppData\\Local\\Temp\\automl_tts_cache\\ff8f984aa4d66b3a.mp3'>
+2026-04-14 12:58:16,048 | DEBUG | part-15 created
+2026-04-14 12:58:16,050 | DEBUG | Saved to C:\Users\arham\AppData\Local\Temp\automl_tts_cache\ff8f984aa4d66b3a.mp3
+2026-04-14 13:06:06 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'cancer anomaly detection data set' ======
+2026-04-14 14:07:29 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'iris' ======
+2026-04-14 14:09:37 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'cancer normal detection data set 2025' ======
+2026-04-14 14:13:06 | INFO | [_builtin_fallback] Attempting to find local/fallback datasets for query: 'cancer normal detection data set 2025'
+2026-04-14 14:13:06 | INFO | [_builtin_fallback] Query 'cancer normal detection data set 2025' not found in static builtins. Trying OpenML Network Fallback...
+2026-04-14 14:13:06 | DEBUG | [_openml_fallback] Fetching perfectly matched name: cancer normal detection data set 2025
+2026-04-14 14:13:06 | DEBUG | [_openml_fallback] Exact match failed. Falling back to fuzzy keyword search on OpenML.
+2026-04-14 14:13:13 | DEBUG | [_huggingface_fallback] OpenML lookup failed. Trying Hugging Face APIs for: 'cancer normal detection data set 2025'
+2026-04-14 14:13:13 | DEBUG | [_huggingface_fallback] Zero exact matches. Trying relaxed query: 'cancer normal'
+2026-04-14 14:13:13 | INFO | [_huggingface_fallback] Match found on HuggingFace: SlitherCode/hcc1143_cancer_and_normal_data. Requesting parquet distribution.
+2026-04-14 14:13:14 | WARN | [FINAL FAULT] Exhausted all remote & local fallback strategies for: 'cancer normal detection data set 2025'
+2026-04-14 14:53:58 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'Smartphone Usage and Addiction Analysis Dataset' ======
+2026-04-14 14:54:58 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'cancer anamoly detection 2025 datast' ======
+2026-04-14 14:55:08 | WARN | [load_dataset_by_query] Kaggle resolution failed: No datasets found for query 'cancer anamoly detection 2025 datast'.
+
+**Note:** To search Kaggle's live database, you must configure the Kaggle API:
+1. `pip install kaggle`
+2. Get `kaggle.json` from kaggle.com â†’ Settings â†’ Create New Token
+3. Place it in `~/.kaggle/kaggle.json`
+. Proceeding to fallback tree.
+2026-04-14 14:55:08 | INFO | [_builtin_fallback] Attempting to find local/fallback datasets for query: 'cancer anamoly detection 2025 datast'
+2026-04-14 14:55:08 | INFO | [_builtin_fallback] Query 'cancer anamoly detection 2025 datast' not found in static builtins. Trying OpenML Network Fallback...
+2026-04-14 14:55:08 | DEBUG | [_openml_fallback] Fetching perfectly matched name: cancer anamoly detection 2025 datast
+2026-04-14 14:55:08 | DEBUG | [_openml_fallback] Exact match failed. Falling back to fuzzy keyword search on OpenML.
+2026-04-14 14:55:13 | DEBUG | [_huggingface_fallback] OpenML lookup failed. Trying Hugging Face APIs for: 'cancer anamoly detection 2025 datast'
+2026-04-14 14:55:14 | DEBUG | [_huggingface_fallback] Zero exact matches. Trying relaxed query: 'cancer anamoly'
+2026-04-14 14:55:14 | WARN | [FINAL FAULT] Exhausted all remote & local fallback strategies for: 'cancer anamoly detection 2025 datast'
+2026-04-14 14:56:50 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'cancer anomaly dataste' ======
+2026-04-14 14:56:56 | WARN | [load_dataset_by_query] Kaggle resolution failed: No datasets found for query 'cancer anomaly dataste'.
+
+**Note:** To search Kaggle's live database, you must configure the Kaggle API:
+1. `pip install kaggle`
+2. Get `kaggle.json` from kaggle.com â†’ Settings â†’ Create New Token
+3. Place it in `~/.kaggle/kaggle.json`
+. Proceeding to fallback tree.
+2026-04-14 14:56:56 | INFO | [_builtin_fallback] Attempting to find local/fallback datasets for query: 'cancer anomaly dataste'
+2026-04-14 14:56:56 | INFO | [_builtin_fallback] Query 'cancer anomaly dataste' not found in static builtins. Trying OpenML Network Fallback...
+2026-04-14 14:56:56 | DEBUG | [_openml_fallback] Fetching perfectly matched name: cancer anomaly dataste
+2026-04-14 14:56:56 | DEBUG | [_openml_fallback] Exact match failed. Falling back to fuzzy keyword search on OpenML.
+2026-04-14 14:57:00 | DEBUG | [_huggingface_fallback] OpenML lookup failed. Trying Hugging Face APIs for: 'cancer anomaly dataste'
+2026-04-14 14:57:00 | DEBUG | [_huggingface_fallback] Zero exact matches. Trying relaxed query: 'cancer anomaly'
+2026-04-14 14:57:00 | WARN | [FINAL FAULT] Exhausted all remote & local fallback strategies for: 'cancer anomaly dataste'
+2026-04-14 14:57:13 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'cancer anomaly' ======
+2026-04-14 14:58:12 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'credit card fraud detection' ======
+2026-04-14 15:12:08 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'cancer anomaly' ======
+2026-04-14 15:14:26 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'iris' ======
+2026-04-14 15:47:28 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'iris' ======
+2026-04-14 16:50:46 | INFO | ====== [load_dataset_by_query] INITIATING DATASET LOAD: 'credit card fraud detection' ======

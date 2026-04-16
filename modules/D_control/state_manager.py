@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import threading
+import time
 from copy import deepcopy
 from datetime import datetime
 
@@ -39,8 +40,10 @@ class StateManager:
                 "epochs_total": DEFAULT_EPOCHS,
                 "epoch_current": 0,
                 "layers": 3,
+                "activation": "relu",
 
                 "training_status": "idle",
+                "results_requested": False,
                 "loss_history": [],
                 "accuracy_history": [],
 
@@ -53,6 +56,18 @@ class StateManager:
                 "outputs": [],
 
                 "stateless_results": [],
+                "weather_result": {},
+
+                "timer": {
+                    "exists": False,
+                    "label": "timer",
+                    "original_duration_seconds": 0,
+                    "remaining_seconds": 0,
+                    "status": "idle",   # idle/running/paused/stopped/completed
+                    "last_started_at": None,
+                    "completion_announced": False,
+                },
+
                 "event_log": [],
             }
 
@@ -69,7 +84,9 @@ class StateManager:
             self._state["epochs_total"] = DEFAULT_EPOCHS
             self._state["epoch_current"] = 0
             self._state["layers"] = 3
+            self._state["activation"] = "relu"
             self._state["training_status"] = "idle"
+            self._state["results_requested"] = False
             self._state["loss_history"] = []
             self._state["accuracy_history"] = []
             self._state["generated_code_py"] = ""
@@ -80,6 +97,7 @@ class StateManager:
             self._state["code_output_text"] = ""
             self._state["outputs"] = []
             self._state["stateless_results"] = []
+            self._state["weather_result"] = {}
 
     def get_state(self) -> dict:
         with self._lock:
@@ -90,7 +108,6 @@ class StateManager:
             return deepcopy(self._state.get(key, default))
 
     def get_ui_state(self) -> dict:
-        """Return a compact dict suitable for UI display."""
         with self._lock:
             loss = list(self._state["loss_history"])
             acc = list(self._state["accuracy_history"])
@@ -102,7 +119,9 @@ class StateManager:
                 "epochs_total": self._state["epochs_total"],
                 "epoch_current": self._state["epoch_current"],
                 "layers": self._state["layers"],
+                "activation": self._state["activation"],
                 "training_status": self._state["training_status"],
+                "results_requested": self._state.get("results_requested", False),
                 "loss_latest": loss[-1] if loss else None,
                 "accuracy_latest": acc[-1] if acc else None,
                 "n_events": len(self._state["event_log"]),
@@ -168,6 +187,14 @@ class StateManager:
         with self._lock:
             self._state["layers"] = n
 
+    def set_activation(self, act: str) -> None:
+        with self._lock:
+            self._state["activation"] = act
+
+    def set_results_requested(self, requested: bool) -> None:
+        with self._lock:
+            self._state["results_requested"] = requested
+
     def set_training_status(self, status: str) -> None:
         with self._lock:
             self._state["training_status"] = status
@@ -216,6 +243,129 @@ class StateManager:
         with self._lock:
             self._state["stateless_results"] = results
 
+    def set_weather_result(self, result: dict) -> None:
+        with self._lock:
+            self._state["weather_result"] = result or {}
+
+    # ── Timer state ──────────────────────────────────────────
+
+    def start_timer(self, duration_seconds: int, label: str = "timer") -> None:
+        with self._lock:
+            self._state["timer"] = {
+                "exists": True,
+                "label": label or "timer",
+                "original_duration_seconds": int(duration_seconds),
+                "remaining_seconds": int(duration_seconds),
+                "status": "running",
+                "last_started_at": time.time(),
+                "completion_announced": False,
+            }
+
+    def pause_timer(self) -> bool:
+        with self._lock:
+            timer = self._state["timer"]
+            if not timer.get("exists") or timer.get("status") != "running":
+                return False
+            elapsed = max(0, int(time.time() - timer["last_started_at"]))
+            timer["remaining_seconds"] = max(0, timer["remaining_seconds"] - elapsed)
+            timer["status"] = "paused"
+            timer["last_started_at"] = None
+            return True
+
+    def resume_timer(self) -> bool:
+        with self._lock:
+            timer = self._state["timer"]
+            if not timer.get("exists") or timer.get("status") != "paused":
+                return False
+            timer["status"] = "running"
+            timer["last_started_at"] = time.time()
+            return True
+
+    def stop_timer(self) -> bool:
+        with self._lock:
+            timer = self._state["timer"]
+            if not timer.get("exists"):
+                return False
+            timer["status"] = "stopped"
+            timer["remaining_seconds"] = 0
+            timer["last_started_at"] = None
+            return True
+
+    def cancel_timer(self) -> None:
+        with self._lock:
+            self._state["timer"] = {
+                "exists": False,
+                "label": "timer",
+                "original_duration_seconds": 0,
+                "remaining_seconds": 0,
+                "status": "idle",
+                "last_started_at": None,
+                "completion_announced": False,
+            }
+
+    def restart_timer(self) -> bool:
+        with self._lock:
+            timer = self._state["timer"]
+            if not timer.get("exists"):
+                return False
+            timer["remaining_seconds"] = int(timer["original_duration_seconds"])
+            timer["status"] = "running"
+            timer["last_started_at"] = time.time()
+            timer["completion_announced"] = False
+            return True
+
+    def reset_timer(self) -> bool:
+        with self._lock:
+            timer = self._state["timer"]
+            if not timer.get("exists"):
+                return False
+            timer["remaining_seconds"] = int(timer["original_duration_seconds"])
+            timer["status"] = "paused"
+            timer["last_started_at"] = None
+            timer["completion_announced"] = False
+            return True
+
+    def add_time_to_timer(self, extra_seconds: int) -> bool:
+        with self._lock:
+            timer = self._state["timer"]
+            if not timer.get("exists"):
+                return False
+            timer["remaining_seconds"] = int(timer["remaining_seconds"]) + int(extra_seconds)
+            timer["original_duration_seconds"] = int(timer["original_duration_seconds"]) + int(extra_seconds)
+            if timer["status"] == "completed":
+                timer["status"] = "paused"
+            timer["completion_announced"] = False
+            return True
+
+    def get_timer_info(self) -> dict:
+        with self._lock:
+            timer = deepcopy(self._state["timer"])
+
+        if not timer.get("exists"):
+            return timer
+
+        if timer["status"] == "running" and timer["last_started_at"] is not None:
+            elapsed = max(0, int(time.time() - timer["last_started_at"]))
+            remaining = max(0, int(timer["remaining_seconds"] - elapsed))
+            timer["remaining_seconds"] = remaining
+            if remaining == 0:
+                timer["status"] = "completed"
+                timer["last_started_at"] = None
+                with self._lock:
+                    self._state["timer"]["remaining_seconds"] = 0
+                    self._state["timer"]["status"] = "completed"
+                    self._state["timer"]["last_started_at"] = None
+
+        return timer
+
+    def mark_timer_completion_announced(self) -> None:
+        with self._lock:
+            self._state["timer"]["completion_announced"] = True
+
+    def timer_completion_announced(self) -> bool:
+        with self._lock:
+            return bool(self._state["timer"].get("completion_announced", False))
+
     def append_log(self, message: str) -> None:
         with self._lock:
             ts = datetime.now().strftime("%H:%M:%S")
@@ -233,6 +383,7 @@ class StateManager:
 
 _instance = None
 _instance_lock = threading.Lock()
+
 
 def get_state_manager() -> StateManager:
     global _instance

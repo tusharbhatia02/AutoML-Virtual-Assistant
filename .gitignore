@@ -40,3 +40,5 @@ Thumbs.db
 # ── Workspace data ──
 artifacts/
 data/kaggle_cache/
+.venv/
+tushar/

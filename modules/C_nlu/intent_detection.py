@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import re
 
-# ── Intent Sets ─────────────────────────────────────────────
-
 STATEFUL_INTENTS = {
     "load_dataset",
     "select_model",
@@ -21,6 +19,22 @@ STATEFUL_INTENTS = {
     "show_status",
     "show_accuracy",
     "show_loss_curve",
+    "tell_results",
+    "set_activation",
+    "split_dataset",
+    "clean_dataset",
+    "download_weights",
+
+    # Timer
+    "set_timer",
+    "check_timer",
+    "pause_timer",
+    "resume_timer",
+    "stop_timer",
+    "restart_timer",
+    "reset_timer",
+    "add_time_to_timer",
+    "cancel_timer",
 }
 
 STATELESS_INTENTS = {
@@ -29,12 +43,17 @@ STATELESS_INTENTS = {
     "show_competition",
     "show_leaderboard",
     "search_code",
+    "suggest_model",
+    "suggest_hyperparameters",
+    "get_weather",
 }
 
 UTILITY_INTENTS = {
     "help",
     "repeat",
-    "unknown_intent",
+    "greetings",
+    "farewell",
+    "out_of_scope",
 }
 
 MODEL_KEYWORDS = {
@@ -50,8 +69,6 @@ MODEL_KEYWORDS = {
     "resnet": "resnet",
 }
 
-# ── ASR correction map ──────────────────────────────────────
-
 _ASR_CORRECTIONS = [
     (r"\bx\s*g\s*boost\b", "xgboost"),
     (r"\blearning\s+great\b", "learning rate"),
@@ -62,33 +79,31 @@ _ASR_CORRECTIONS = [
 
 
 def normalize_text(text: str | None) -> str:
-    """Lowercase, strip punctuation, collapse whitespace, apply ASR corrections."""
     if text is None:
         return ""
     t = text.strip()
     if not t:
         return ""
     t = t.lower()
-    # Apply ASR corrections
     for pattern, replacement in _ASR_CORRECTIONS:
         t = re.sub(pattern, replacement, t)
-    # Strip punctuation (keep periods in numbers like 0.01)
-    t = re.sub(r"(?<!\d)\.(?!\d)", " ", t)   # dots not between digits
-    t = re.sub(r"[^\w\s.]", " ", t)           # other punctuation
+    t = re.sub(r"(?<!\d)\.(?!\d)", " ", t)
+    t = re.sub(r"[^\w\s.]", " ", t)
     t = re.sub(r"\s+", " ", t).strip()
     return t
 
 
-# ── Category helpers ────────────────────────────────────────
-
 def is_stateful_intent(intent: str) -> bool:
     return intent in STATEFUL_INTENTS
+
 
 def is_stateless_intent(intent: str) -> bool:
     return intent in STATELESS_INTENTS
 
+
 def is_utility_intent(intent: str) -> bool:
     return intent in UTILITY_INTENTS
+
 
 def get_intent_category(intent: str) -> str:
     if intent in STATEFUL_INTENTS:
@@ -99,25 +114,34 @@ def get_intent_category(intent: str) -> str:
         return "utility"
     return "unknown"
 
+
 def get_supported_intents() -> list[str]:
     return sorted(STATEFUL_INTENTS | STATELESS_INTENTS | UTILITY_INTENTS)
 
-
-# ── Intent Detection ────────────────────────────────────────
 
 def detect_intent(text: str) -> str:
     t = normalize_text(text)
 
     if not t:
-        return "unknown_intent"
+        return "out_of_scope"
 
-    # ── Utility ──────────────────────────────────────────
     if t in {"help", "what can you do", "show help"}:
         return "help"
     if t in {"repeat", "say that again", "pardon", "come again"}:
         return "repeat"
+    if t in {
+        "hello", "hi", "hey", "good morning", "good evening",
+        "good afternoon", "greetings", "hi mycroft",
+        "hello mycroft", "hey mycroft", "morning", "sup"
+    }:
+        return "greetings"
+    if t in {
+        "bye", "good bye", "goodbye", "see ya", "see you later",
+        "good night", "farewell", "bye mycroft",
+        "goodbye mycroft", "good night mycroft", "thank you"
+    }:
+        return "farewell"
 
-    # ── Stateless (check early — "show leaderboard" before "show") ──
     if "leaderboard" in t:
         return "show_leaderboard"
     if re.search(r"\bcompetition", t):
@@ -126,18 +150,60 @@ def detect_intent(text: str) -> str:
     if any(p in t for p in ["search code", "find code", "search notebook", "find notebook", "search kernel"]):
         return "search_code"
 
-    if any(p in t for p in ["dataset info", "about dataset", "files for dataset",
-                            "tell me about", "describe dataset", "describe the dataset",
-                            "info on dataset", "info about"]):
+    if any(p in t for p in [
+        "dataset info", "about dataset", "files for dataset", "tell me about",
+        "describe dataset", "describe the dataset", "info on dataset", "info about"
+    ]):
         return "get_dataset_info"
 
-    if any(p in t for p in ["search dataset", "find dataset", "search data", "find data",
-                            "search for dataset", "search for data", "browse dataset",
-                            "look for dataset", "look for data"]):
+    if any(p in t for p in [
+        "search dataset", "find dataset", "search data", "find data",
+        "search for dataset", "search for data", "browse dataset",
+        "look for dataset", "look for data"
+    ]):
         return "search_dataset"
 
-    # ── Code workspace commands ──────────────────────────
-    if any(v in t for v in ["load", "retrieve", "fetch", "download", "get", "pull"]) and any(k in t for k in ["code", "notebook", "script"]):
+    if (
+        any(k in t for k in ["weather", "forecast", "temperature", "rain", "raining", "snow", "sunny", "cloudy"])
+        and any(clue in t for clue in [" in ", " today", " tomorrow", "weather", "forecast", "does it", "is it", "will it"])
+    ):
+        return "get_weather"
+
+    # Timer intent ordering matters
+    if any(k in t for k in ["add", "extend", "increase", "plus"]) and "timer" in t and any(
+        unit in t for unit in ["second", "seconds", "minute", "minutes", "hour", "hours", "sec", "min", "hr"]
+    ):
+        return "add_time_to_timer"
+
+    if "timer" in t and any(v in t for v in ["pause", "hold"]):
+        return "pause_timer"
+
+    if "timer" in t and any(v in t for v in ["resume", "continue", "unpause"]):
+        return "resume_timer"
+
+    if "timer" in t and "restart" in t:
+        return "restart_timer"
+
+    if "timer" in t and "reset" in t:
+        return "reset_timer"
+
+    if "timer" in t and any(v in t for v in ["cancel", "clear", "delete", "remove"]):
+        return "cancel_timer"
+
+    if "timer" in t and "stop" in t:
+        return "stop_timer"
+
+    if "timer" in t and any(v in t for v in ["status", "remaining", "left", "check", "show"]):
+        return "check_timer"
+
+    if ("timer" in t or "countdown" in t or "alarm" in t) and any(
+        unit in t for unit in ["second", "seconds", "minute", "minutes", "hour", "hours", "sec", "min", "hr"]
+    ):
+        return "set_timer"
+
+    if any(v in t for v in ["load", "retrieve", "fetch", "download", "get", "pull"]) and any(
+        k in t for k in ["code", "notebook", "script"]
+    ):
         return "load_code"
 
     if any(v in t for v in ["run", "execute"]) and any(k in t for k in ["code", "experiment"]):
@@ -146,7 +212,6 @@ def detect_intent(text: str) -> str:
     if "show output" in t or "display output" in t:
         return "show_output"
 
-    # ── Hyperparameters ──────────────────────────────────
     if "learning rate" in t or re.search(r"\blr\b", t):
         return "set_learning_rate"
 
@@ -159,50 +224,80 @@ def detect_intent(text: str) -> str:
     if "set layers" in t or "change layers" in t or "layers to" in t:
         return "set_layers"
 
-    # ── Training control ─────────────────────────────────
-    if any(p in t for p in ["start training", "begin training", "begin the training",
-                            "run training", "launch training", "launch the training",
-                            "train the model", "start the training"]):
+    if any(k in t for k in ["set activation", "update activation", "activation function"]):
+        return "set_activation"
+
+    if any(k in t for k in ["suggest model", "suggest a model", "suggest me a model", "suggest me model", "what model"]):
+        return "suggest_model"
+
+    if any(k in t for k in ["suggest hyperparameters", "suggest parameters", "what hyperparameters"]):
+        return "suggest_hyperparameters"
+
+    if any(k in t for k in [
+        "clean dataset", "clean data", "handle missing", "preprocess data",
+        "analyze dataset", "what are the changes", "changes in the dataset",
+        "changes did you make"
+    ]):
+        return "clean_dataset"
+
+    if "split" in t and ("dataset" in t or "data" in t):
+        return "split_dataset"
+
+    if any(k in t for k in ["download weights", "download model"]):
+        return "download_weights"
+
+    if any(k in t for k in ["show results", "tell results", "show the results", "tell the results", "display results"]):
+        return "tell_results"
+
+    if any(p in t for p in [
+        "start training", "begin training", "begin the training",
+        "run training", "launch training", "launch the training",
+        "train the model", "start the training"
+    ]):
         return "start_training"
 
-    if any(p in t for p in ["resume training", "resume the training",
-                            "continue training", "continue the training",
-                            "unpause training", "unpause the training"]):
+    if any(p in t for p in [
+        "resume training", "resume the training",
+        "continue training", "continue the training",
+        "unpause training", "unpause the training"
+    ]):
         return "resume_training"
 
-    if any(p in t for p in ["pause training", "pause the training",
-                            "hold training", "hold the training"]):
+    if any(p in t for p in ["pause training", "pause the training", "hold training", "hold the training"]):
         return "pause_training"
 
-    if any(p in t for p in ["stop training", "stop the training",
-                            "cancel training", "cancel the training",
-                            "abort training", "abort the training"]):
+    if any(p in t for p in [
+        "stop training", "stop the training",
+        "cancel training", "cancel the training",
+        "abort training", "abort the training"
+    ]):
         return "stop_training"
 
-    # ── Status / Metrics ─────────────────────────────────
-    if any(p in t for p in ["show status", "check status", "current status",
-                            "training status", "what is the status",
-                            "is training done", "is training complete",
-                            "training progress", "is it done"]):
+    if any(p in t for p in [
+        "show status", "check status", "current status", "training status",
+        "what is the status", "is training done", "is training complete",
+        "training progress", "is it done"
+    ]):
         return "show_status"
 
-    if any(p in t for p in ["show accuracy", "current accuracy",
-                            "what is the accuracy", "how accurate",
-                            "accuracy of the model"]):
+    if any(p in t for p in [
+        "show accuracy", "current accuracy", "what is the accuracy",
+        "how accurate", "accuracy of the model"
+    ]):
         return "show_accuracy"
 
-    if any(p in t for p in ["show loss curve", "plot loss", "loss curve",
-                            "loss history", "show loss history",
-                            "loss graph", "plot loss graph"]):
+    if any(p in t for p in [
+        "show loss curve", "plot loss", "loss curve", "loss history",
+        "show loss history", "loss graph", "plot loss graph"
+    ]):
         return "show_loss_curve"
 
-    # ── Model selection (keyword match) ──────────────────
     if any(m in t for m in MODEL_KEYWORDS):
         return "select_model"
 
-    # ── Dataset loading (regex fallback) ─────────────────
-    if re.search(r"\b(load|import|open|retrieve|fetch|use|download|get|grab|pull)\b", t) and \
-       not any(k in t for k in ["code", "notebook", "script", "model"]):
+    if re.search(r"\b(load|import|open|retrieve|fetch|use|download|get|grab|pull)\b", t) and not any(
+        k in t for k in ["code", "notebook", "script", "model"]
+    ):
         return "load_dataset"
 
-    return "unknown_intent"
+    return "out_of_scope"

@@ -65,17 +65,17 @@ from modules.A_user_access.wake_word import is_wake_word
 class TestWakeWord:
 
     def test_exact_match(self):
-        assert is_wake_word("hey mello, start training") is True
+        assert is_wake_word("hey mycroft, start training") is True
 
     def test_variant_hi(self):
-        assert is_wake_word("hi mello") is True
+        assert is_wake_word("hi mycroft") is True
 
     def test_variant_wake_up(self):
         assert is_wake_word("wake up please") is True
 
     def test_fuzzy_typo(self):
         # Common STT mis-transcription
-        assert is_wake_word("hey mello load dataset") is True
+        assert is_wake_word("hey mycroft load dataset") is True
 
     def test_no_wake_word(self):
         assert is_wake_word("load the titanic dataset") is False

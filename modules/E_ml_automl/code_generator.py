@@ -37,6 +37,9 @@ def generate_code_bundle(state: dict) -> dict:
     batch = state.get("batch_size", 32)
     epochs = state.get("epochs_total", 10)
     layers = state.get("layers", 3)
+    activation = state.get("activation", "relu")
+    test_ratio = state.get("split_ratio", 0.2)
+    preview_file = state.get("dataset_info", {}).get("preview_file", "path/to/your/data.csv")
 
     task_family = profile.get("task_family", "tabular_classification")
 
@@ -51,6 +54,8 @@ learning_rate = {lr}
 batch_size = {batch}
 epochs = {epochs}
 layers = {layers}
+activation = "{activation}"
+test_ratio = {test_ratio}
 
 class SimpleCNN(nn.Module):
     def __init__(self, num_classes=10):
@@ -94,13 +99,15 @@ dataset_name = "{dataset}"
 learning_rate = {lr}
 batch_size = {batch}
 epochs = {epochs}
+test_ratio = {test_ratio}
+data_path = r"{preview_file}"
 
-df = pd.read_csv("path/to/your/data.csv")
+df = pd.read_csv(data_path)
 target_col = df.columns[-1]
 X = df.drop(columns=[target_col])
 y = df[target_col]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size={test_ratio}, random_state=42)
 
 model = XGBRegressor(
     learning_rate=learning_rate,
@@ -121,6 +128,9 @@ model = RandomForestClassifier(n_estimators={max(50, epochs * 10)}, random_state
         elif model == "logistic_regression":
             model_code = f'''from sklearn.linear_model import LogisticRegression
 model = LogisticRegression(max_iter={max(200, epochs * 20)})'''
+        elif model == "mlp":
+            model_code = f'''from sklearn.neural_network import MLPClassifier
+model = MLPClassifier(hidden_layer_sizes=({max(16, layers*16)},), learning_rate_init={lr}, batch_size={batch}, activation="{activation}", max_iter={epochs}, random_state=42)'''
         else:
             model_code = f'''from xgboost import XGBClassifier
 model = XGBClassifier(
@@ -140,14 +150,17 @@ learning_rate = {lr}
 batch_size = {batch}
 epochs = {epochs}
 layers = {layers}
+activation = "{activation}"
+test_ratio = {test_ratio}
+data_path = r"{preview_file}"
 
-df = pd.read_csv("path/to/your/data.csv")
+df = pd.read_csv(data_path)
 target_col = df.columns[-1]
 X = df.drop(columns=[target_col])
 y = df[target_col]
 
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42, stratify=y if y.nunique() < 30 else None
+    X, y, test_size={test_ratio}, random_state=42, stratify=y if y.nunique() < 30 else None
 )
 
 {model_code}

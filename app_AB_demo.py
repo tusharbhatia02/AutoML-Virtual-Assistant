@@ -573,7 +573,7 @@ with col_left:
             if input_mode == "📝 Type a command":
                 typed = st.text_input(
                     "Type your command:",
-                    placeholder='e.g.  "hey mello set learning rate to 0.01"',
+                    placeholder='e.g.  "hey mycroft set learning rate to 0.01"',
                     key="typed_cmd",
                 )
                 if st.button("Submit Text Command", key="btn_text"):
@@ -636,7 +636,7 @@ with col_left:
             else:
                 st.warning(
                     f"⚠️ No wake word found in: *\"{cmd}\"*  "
-                    "— Try starting with **'hey mello'**"
+                    "— Try starting with **'hey mycroft'**"
                 )
         else:
             st.info("Waiting for input…")
@@ -654,7 +654,7 @@ with col_left:
             # Strip the wake word from the command before passing downstream
             import re
             clean_cmd = re.sub(
-                r"(hey|hi|okay|wake up|hello)\s+mello\s*",
+                r"(hey|hi|okay|wake up|hello)\s+mycroft\s*",
                 "",
                 st.session_state.raw_command,
             ).strip()
@@ -711,7 +711,7 @@ with col_right:
     st.caption("Paste any text to test the pipeline without a microphone.")
     test_text = st.text_area(
         "Test text",
-        value='hey mello set learning rate to 0.01',
+        value='hey mycroft set learning rate to 0.01',
         height=70,
     )
     if st.button("Run Test", key="btn_test"):
@@ -720,7 +720,7 @@ with col_right:
             woke = is_wake_word(p["text"])
             st.write(f"Wake word detected: **{woke}**")
             import re
-            clean = re.sub(r"(hey|hi|okay|wake up|hello)\s+mello\s*", "", p["text"]).strip()
+            clean = re.sub(r"(hey|hi|okay|wake up|hello)\s+mycroft\s*", "", p["text"]).strip()
             st.write(f"Command: `{clean}`")
             st.json({"valid": p["valid"], "wake_word": woke, "command": clean})
         else:
